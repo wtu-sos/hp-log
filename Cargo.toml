@@ -1,0 +1,9 @@
+[package]
+name = "format"
+version = "0.1.0"
+authors = ["junyan.yjy <junyan.yjy@alibaba-inc.com>"]
+edition = "2018"
+
+[dependencies]
+strfmt = "*"
+time = "*"
