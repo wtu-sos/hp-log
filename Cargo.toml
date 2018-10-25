@@ -7,3 +7,6 @@ edition = "2018"
 [dependencies]
 strfmt = "*"
 time = "*"
+serde = "*"
+serde_derive = "*"
+toml = "*"

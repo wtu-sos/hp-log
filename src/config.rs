@@ -73,7 +73,7 @@ macro_rules! create_config {
             pub fn instance() -> &'static Self {
                 unsafe {
                     assert!(INST.is_some(), "instance is None");
-                    INST.as_ref().expect(e!())
+                    INST.as_ref().expect("get instance erro")
                 }
             }
 
@@ -187,11 +187,9 @@ create_config!(
 
 /// Load a config by checking the client-supplied options and if appropriate, the
 /// file system (including searching the file system for overrides).
-pub fn load_config(
-    file_path: Option<PathBuf>,
-) -> Result<Config, Error> {
-    if let Some(file_path) = file_path {
-        const CONFIG_FILE_NAMES: [&str; 2] = ["LogConfig.toml", "logconfig.toml"];
+pub fn load_config<T: Into<Option<PathBuf>>>( file_path: T) -> Result<Config, Error> {
+    if let Some(file_path) = file_path.into() {
+        const CONFIG_FILE_NAMES: [&str; 2] = ["Log.toml", "log.toml"];
         for config_file_name in &CONFIG_FILE_NAMES {
             let mut file_path_cloned = file_path.clone();
             file_path_cloned.push(Path::new(config_file_name));
