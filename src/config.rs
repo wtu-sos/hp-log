@@ -29,6 +29,7 @@ macro_rules! create_config {
             $(pub $i: Option<$ty>),+
         }
 
+        #[allow(dead_code)]
         impl PartialConfig {
             pub fn to_toml(&self) -> Result<String, String> {
                 let cloned = self.clone();
@@ -41,6 +42,7 @@ macro_rules! create_config {
 
         pub struct ConfigSetter<'a>(&'a mut Config);
 
+        #[allow(dead_code)]
         impl<'a> ConfigSetter<'a> {
             $( pub fn $i(&mut self, value: $ty) { (self.0).$i.2 = value; } )+
         }
@@ -49,6 +51,7 @@ macro_rules! create_config {
         // a default was used.
         pub struct ConfigWasSet<'a>(&'a Config);
 
+        #[allow(dead_code)]
         impl<'a> ConfigWasSet<'a> {
             $(
             pub fn $i(&self) -> bool {
@@ -57,6 +60,7 @@ macro_rules! create_config {
             )+
         }
 
+        #[allow(dead_code)]
         impl Config {
             pub fn create_instance( file_path: Option<PathBuf> ) {
                 INST_ONCE.call_once(|| {
@@ -96,6 +100,7 @@ macro_rules! create_config {
                 let mut file = File::open(&file_path)?;
                 let mut toml = String::new();
                 file.read_to_string(&mut toml)?;
+                println!("toml: {:?}", toml);
                 Config::from_toml(&toml)
                     .map_err(|err| Error::new(ErrorKind::InvalidData, err))
             }

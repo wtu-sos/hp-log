@@ -11,10 +11,13 @@ use std::collections::HashMap;
 use std::time::Instant;
 use std::thread;
 use std::path::PathBuf;
+
 mod event;
 mod config;
+mod filter;
 
 use self::event::Event;
+use self::filter::Filters;
 
 fn fmt_by_strfmt(map: &HashMap<String, &str>) {
     let _result = format!("{}-{}-{}", "File Name", "1234546", 12345);
@@ -24,9 +27,11 @@ fn fmt_by_strfmt(map: &HashMap<String, &str>) {
 }
 
 fn main() {
-    let conf = config::load_config(PathBuf::from("./")).unwrap();
-    println!("{:?}", conf);
-    let max_format_count = 1000_0000;
+    config::Config::create_instance(Some(PathBuf::from("./")));
+
+    let filters = Filters::generate_by_config().get_filter();
+    println!("filter: {:b}", filters);
+    let max_format_count = 100_000;
     let t1 = max_format_count.clone(); 
     let t2 = max_format_count.clone(); 
     let th1 = thread::spawn(move ||{
