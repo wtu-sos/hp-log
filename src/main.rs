@@ -12,9 +12,12 @@ use std::time::Instant;
 use std::thread;
 use std::path::PathBuf;
 
+use std::sync::Arc;
+
 mod event;
 mod config;
 mod filter;
+mod writer;
 
 use self::event::Event;
 use self::filter::Filters;
@@ -28,9 +31,11 @@ fn fmt_by_strfmt(map: &HashMap<String, &str>) {
 
 fn main() {
     config::Config::create_instance(Some(PathBuf::from("./")));
-
     let filters = Filters::generate_by_config().get_filter();
     println!("filter: {:b}", filters);
+
+    let s = Arc::new(String::from("123456789adsfaldkjfs"));
+
     let max_format_count = 100_000;
     let t1 = max_format_count.clone(); 
     let t2 = max_format_count.clone(); 
