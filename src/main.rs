@@ -22,6 +22,8 @@ mod writer;
 use self::event::Event;
 use self::filter::Filters;
 
+use self::writer::Writer;
+
 fn fmt_by_strfmt(map: &HashMap<String, &str>) {
     let _result = format!("{}-{}-{}", "File Name", "1234546", 12345);
     let fmt = "{name}-{job}-{id}!".to_string();
@@ -36,7 +38,10 @@ fn main() {
 
     let s = Arc::new(String::from("123456789adsfaldkjfs"));
 
-    let max_format_count = 100_000;
+
+    let mut w = Writer::new();
+    let post = w.get_poster();
+    let max_format_count = 1000_0000;
     let t1 = max_format_count.clone(); 
     let t2 = max_format_count.clone(); 
     let th1 = thread::spawn(move ||{
@@ -44,23 +49,28 @@ fn main() {
 
         let d_now = Instant::now();
         for _ in 0..t1 {
-            event.format_by_default();
+            post.insert_log(event.format_by_default());
         //    fmt_by_default_macro();
         }
         println!("consume time is : {}", d_now.elapsed().as_millis());
     });
     let th2 = thread::spawn(move ||{
-        let mut vars = HashMap::new();
-        vars.insert("name".to_string(), "File Name");
-        vars.insert("job".to_string(), "1234546");
-        vars.insert("id".to_string(), "12345");
-        let s_now = Instant::now();
-        for _ in 0..t2 {
-            fmt_by_strfmt(&vars);
+        loop {
+            w.fetch_logs();
         }
-        println!("consume time is : {}", s_now.elapsed().as_millis());
     });
 
     th1.join();
     th2.join();
 }
+
+
+        //let mut vars = HashMap::new();
+        //vars.insert("name".to_string(), "File Name");
+        //vars.insert("job".to_string(), "1234546");
+        //vars.insert("id".to_string(), "12345");
+        //let s_now = Instant::now();
+        //for _ in 0..t2 {
+        //    fmt_by_strfmt(&vars);
+        //}
+        //println!("consume time is : {}", s_now.elapsed().as_millis());
