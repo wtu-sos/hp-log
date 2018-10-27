@@ -3,14 +3,14 @@ use std::fs::File;
 use std::fs::OpenOptions;
 use std::sync::{Arc, Mutex, Condvar};
 use std::io::Write;
-use std::io::{Error, ErrorKind};
-use std::thread::{self, JoinHandle};
+//use std::io::{Error, ErrorKind};
+//use std::thread::{self, JoinHandle};
 
 //use crate::filter::Filters;
 //use crate::event::Event;
 
 
-pub struct Appender {
+pub struct FileAppender {
     //filter: Filters,
     max_buf: usize,
     buf: String,
@@ -21,7 +21,7 @@ pub struct Appender {
 pub struct Writer {
     inner: Arc<Inner>,
     event_cache: LinkedList<String>,
-    appenders: Vec<Appender>,
+    appenders: Vec<FileAppender>,
 }
 
 pub struct Inner {
@@ -33,10 +33,10 @@ pub struct Poster {
     inner: Arc<Inner>,
 }
 
-impl Appender {
+impl FileAppender {
     pub fn new(buf_size: usize, file_name: String) -> Self {
         let file = OpenOptions::new().create(true).write(true).open(file_name.clone()).unwrap();
-        Appender {
+        Self {
             max_buf: buf_size,
             buf: String::with_capacity(buf_size),
             file_name,
@@ -87,10 +87,7 @@ impl Inner {
         //println!("insert log : {:?}", log);
         lock.push_back(log);
 
-        //let be_notify = if self.event_cache.is_empty() { true } else { false };
-        //if be_notify {
         self.cond.notify_one();
-        //} 
     }
 }
 
@@ -111,7 +108,7 @@ impl Writer {
         Writer {
             inner: Arc::new(Inner::new()),
             event_cache: LinkedList::new(),
-            appenders: vec![Appender::new(1024, String::from("/tmp/log/test_file.log"))],
+            appenders: vec![FileAppender::new(1024 * 1024, String::from("/tmp/log/test_file.log"))],
         }
     }
 
@@ -121,7 +118,7 @@ impl Writer {
         }
     }
 
-    pub fn add_appender(&mut self, appender: Appender) {
+    pub fn add_appender(&mut self, appender: FileAppender) {
         self.appenders.push(appender);
     }
 

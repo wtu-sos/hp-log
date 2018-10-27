@@ -38,39 +38,38 @@ fn main() {
 
     let s = Arc::new(String::from("123456789adsfaldkjfs"));
 
+    let mut ths = Vec::new();
 
-    let mut w = Writer::new();
-    let post = w.get_poster();
-    let max_format_count = 1000_0000;
+
+    let max_format_count = 500_0000;
     let t1 = max_format_count.clone(); 
     let t2 = max_format_count.clone(); 
-    let th1 = thread::spawn(move ||{
-        let event = Event::new("Debug", 1.to_string(), file!(), line!(), "testing ...99=====.....mmmmmmmm".to_string());
 
-        let d_now = Instant::now();
-        for _ in 0..t1 {
-            post.insert_log(event.format_by_default());
-        //    fmt_by_default_macro();
-        }
-        println!("consume time is : {}", d_now.elapsed().as_millis());
-    });
-    let th2 = thread::spawn(move ||{
-        loop {
-            w.fetch_logs();
-        }
-    });
+    for i in 0..8 {
+        let post = w.get_poster();
+        ths.push(thread::spawn(
+                move || {
+                    let event = Event::new("Debug", i.to_string(), file!(), line!(), "testing ...99=====.....mmmmmmmm".to_string());
 
-    th1.join();
+                    let d_now = Instant::now();
+                    for _ in 0..t1 {
+                        post.insert_log(event.format_by_default());
+                    }
+                    println!("consume time is : {}", d_now.elapsed().as_millis());
+
+                }));
+    }
+
     th2.join();
 }
 
 
-        //let mut vars = HashMap::new();
-        //vars.insert("name".to_string(), "File Name");
-        //vars.insert("job".to_string(), "1234546");
-        //vars.insert("id".to_string(), "12345");
-        //let s_now = Instant::now();
-        //for _ in 0..t2 {
-        //    fmt_by_strfmt(&vars);
-        //}
-        //println!("consume time is : {}", s_now.elapsed().as_millis());
+//let mut vars = HashMap::new();
+//vars.insert("name".to_string(), "File Name");
+//vars.insert("job".to_string(), "1234546");
+//vars.insert("id".to_string(), "12345");
+//let s_now = Instant::now();
+//for _ in 0..t2 {
+//    fmt_by_strfmt(&vars);
+//}
+//println!("consume time is : {}", s_now.elapsed().as_millis());
