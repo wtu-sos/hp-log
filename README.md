@@ -1,2 +1,2 @@
 # hp-log
-high performance log implement in rust
+high performance multi-thread log implement in rust
