@@ -8,7 +8,7 @@ extern crate toml;
 use strfmt::strfmt;
 
 use std::collections::HashMap;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 use std::thread;
 use std::path::PathBuf;
 
@@ -18,11 +18,12 @@ mod event;
 mod config;
 mod filter;
 mod writer;
+mod logger;
 
 use self::event::Event;
 use self::filter::Filters;
-
 use self::writer::Writer;
+use self::logger::{Logger, SendEvent};
 
 fn fmt_by_strfmt(map: &HashMap<String, &str>) {
     let _result = format!("{}-{}-{}", "File Name", "1234546", 12345);
@@ -44,23 +45,27 @@ fn main() {
     let max_format_count = 500_0000;
     let t1 = max_format_count.clone(); 
     let t2 = max_format_count.clone(); 
+    let logger = Logger::init();
 
     for i in 0..8 {
-        let post = w.get_poster();
+        let post = logger.get_poster();
         ths.push(thread::spawn(
                 move || {
-                    let event = Event::new("Debug", i.to_string(), file!(), line!(), "testing ...99=====.....mmmmmmmm".to_string());
 
                     let d_now = Instant::now();
                     for _ in 0..t1 {
-                        post.insert_log(event.format_by_default());
+                        let event = Event::new("Debug", i.to_string(), file!(), line!(), "testing ...99=====.....mmmmmmmm".to_string());
+                        post.send_event(event);
                     }
                     println!("consume time is : {}", d_now.elapsed().as_millis());
 
                 }));
     }
+    loop {
+        thread::sleep(Duration::from_micros(1u64));
+    };
 
-    th2.join();
+    //th2.join();
 }
 
 

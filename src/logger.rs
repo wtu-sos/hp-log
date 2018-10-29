@@ -1,7 +1,8 @@
-use writer::{Poster, Writer, FileAppender};
-use event::Event;
+use crate::writer::{Poster, Writer, FileAppender};
+use crate::event::Event;
 use std::thread;
 use std::sync::mpsc;
+use std::time::Duration;
 
 pub struct Filter {
 }
@@ -10,12 +11,11 @@ pub enum EventType {
     Log(Event),
 }
 
-struct Logger {
-    appenders: Vec<FileAppender>,
-    sender: mpsc::Sender,
-    wr_th: thread::JoinHandle,
-    fmt_th: thread::JoinHandle,
+pub struct Logger {
+    wr_th: thread::JoinHandle<()>,
+    fmt_th: thread::JoinHandle<()>,
     poster: mpsc::Sender<EventType>,
+    //writer: Writer,
 }
 
 impl Logger {
@@ -25,22 +25,23 @@ impl Logger {
 
         // init writer thread
         let wr_th = thread::spawn(move ||{
+            let mut w = w;
             loop {
                 w.fetch_logs();
 
                 // release cpu every frame 
                 // todo : to be more intelligent
-                thread::sleep_ms(1u32);
+                thread::sleep(Duration::from_micros(1u64));
             }
         });
 
         let (tx, rx) = mpsc::channel();
         let fmt_th = thread::spawn(move || {
             loop {
-                for msg in rx {
+                for msg in rx.iter() {
                     // todo : handle msg 
                     match msg {
-                        Log(log) => {
+                        EventType::Log(log) => {
                             poster.insert_log(log.format_by_default());
                         }
                     }
@@ -48,10 +49,31 @@ impl Logger {
 
                 // release cpu every frame 
                 // todo : to be more intelligent
-                thread::sleep_ms(1u32);
+                thread::sleep(Duration::from_micros(1u64));
             }
         });
+
+        Self {
+            wr_th,
+            fmt_th,
+            poster: tx,
+            //writer: w,
+        }
     }    
+
+    pub fn get_poster(&self) -> mpsc::Sender<EventType> {
+        self.poster.clone()
+    }
+}
+
+pub trait SendEvent {
+    fn send_event(&self, e: Event);
+}
+
+impl SendEvent for mpsc::Sender<EventType> {
+    fn send_event(&self, e: Event) {
+        self.send(EventType::Log(e));
+    }
 }
 
 //#[macro_export]
