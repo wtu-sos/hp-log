@@ -1,10 +1,11 @@
 use time;
+use crate::filter::FilterLevel;
 use std::fmt;
 
 pub struct Event {
     pub time_spec: time::Timespec,
     pub tm: time::Tm,
-    pub level: &'static str,
+    pub level: FilterLevel,
     pub thread_tag: String,
     pub file: &'static str,
     pub line: u32,
@@ -12,7 +13,7 @@ pub struct Event {
 }
 
 impl Event {
-    pub fn new(level: &'static str, thread_tag: String, file: &'static str, line: u32, msg: String) -> Self {
+    pub fn new(level: FilterLevel, thread_tag: String, file: &'static str, line: u32, msg: fmt::Arguments) -> Self {
         Self {
             time_spec: time::get_time(),
             tm: time::now(),
@@ -20,13 +21,13 @@ impl Event {
             thread_tag,
             file,
             line,
-            msg,
+            msg: msg.to_string(),
         }
     }
 
     pub fn format_by_default(&self) -> String {
         let t = self.tm.strftime("%Y%m%d-%H:%M:%S").unwrap();
-        format!("{}-{}-{}:{}  {}\n", t, self.level, self.file, self.line, self.msg)
+        format!("{}-{}-{}-{}:{}  {}\n", t, self.thread_tag, self.level.to_str(), self.file, self.line, self.msg)
     }
 }
 
@@ -35,7 +36,7 @@ impl fmt::Display for Event {
         write!(f,
                "(tm:{:?} level:{} thread_tag:{} file:{} line:{} msg:{})",
                self.tm,
-               self.level,
+               self.level.to_str(),
                self.thread_tag,
                self.file,
                self.line,

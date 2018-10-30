@@ -1,26 +1,30 @@
-use crate::writer::{Poster, Writer, FileAppender};
+use crate::writer::{Writer};
 use crate::event::Event;
+use crate::filter::{self, FilterLevel};
 use std::thread;
-use std::sync::mpsc;
+use std::sync::{mpsc, Mutex};
 use std::time::Duration;
+use std::fmt::Arguments;
 
-pub struct Filter {
-}
 
 pub enum EventType {
     Log(Event),
 }
 
+lazy_static! {
+    pub static ref LOGGER_OBJ : Logger = Logger::init();
+}
+
+#[allow(unused)]
 pub struct Logger {
     wr_th: thread::JoinHandle<()>,
     fmt_th: thread::JoinHandle<()>,
-    poster: mpsc::Sender<EventType>,
-    //writer: Writer,
+    poster: Mutex<mpsc::Sender<EventType>>,
 }
 
 impl Logger {
     pub fn init() -> Self {
-        let mut w = Writer::new();
+        let w = Writer::new();
         let poster = w.get_poster();
 
         // init writer thread
@@ -56,13 +60,19 @@ impl Logger {
         Self {
             wr_th,
             fmt_th,
-            poster: tx,
-            //writer: w,
+            poster: Mutex::new(tx),
         }
     }    
 
     pub fn get_poster(&self) -> mpsc::Sender<EventType> {
-        self.poster.clone()
+        self.poster.lock().unwrap().clone()
+    }
+}
+
+impl Drop for Logger {
+    fn drop(&mut self) {
+        //self.fmt_th.join();
+        //self.wr_th.join();
     }
 }
 
@@ -70,20 +80,53 @@ pub trait SendEvent {
     fn send_event(&self, e: Event);
 }
 
+#[allow(unused)]
 impl SendEvent for mpsc::Sender<EventType> {
     fn send_event(&self, e: Event) {
         self.send(EventType::Log(e));
     }
 }
 
-//#[macro_export]
-//macro_rules! log_debug {
-//    ($($arg:tt)*) => {
-//        $crate::logger_core::with_local(|local| {
-//            if $crate::filter::filter($crate::filter::DEBUG, local.filter) { 
-//                local.send_event($crate::filter::DEBUG, file!(), line!(), format_args!($($arg)*));
-//            }})
-//    }
-//}
+pub struct ThreadLocalLogger {
+    sender: mpsc::Sender<EventType>,
+    thread_tag: String,
+} 
+
+impl ThreadLocalLogger {
+    pub fn new() -> Self {
+        let thread_tag = match thread::current().name() {
+            Some(ref name) => name.to_string(),
+            None => format!("{:?}", thread::current().id()),
+        };
+
+        Self {
+            sender: LOGGER_OBJ.get_poster(),
+            thread_tag, 
+        }
+    }
+
+    fn get_thread_tag(&self) -> String {
+        self.thread_tag.clone()
+    }
+}
+
+thread_local! {
+    static LOG_SENDER: ThreadLocalLogger = ThreadLocalLogger::new();
+}
+
+#[allow(unused)]
+pub fn send_event(level: FilterLevel, file: &'static str, line: u32, msg: Arguments) {
+    LOG_SENDER.with(|s| {
+        let ev = Event::new(level, s.get_thread_tag(), file, line, msg);
+        s.sender.send_event(ev);
+    });
+}
+
+#[macro_export]
+macro_rules! log_debug {
+    ($($arg:tt)*) => {
+        send_event($crate::filter::FilterLevel::Debug, file!(), line!(), format_args!($($arg)*));
+    }
+}
 
 

@@ -5,14 +5,17 @@ extern crate serde;
 extern crate serde_derive;
 extern crate toml;
 
-use strfmt::strfmt;
+#[macro_use]
+extern crate lazy_static;
 
-use std::collections::HashMap;
+//use strfmt::strfmt;
+
+//use std::collections::HashMap;
 use std::time::{Duration, Instant};
 use std::thread;
 use std::path::PathBuf;
 
-use std::sync::Arc;
+//use std::sync::Arc;
 
 mod event;
 mod config;
@@ -22,40 +25,37 @@ mod logger;
 
 use self::event::Event;
 use self::filter::Filters;
-use self::writer::Writer;
-use self::logger::{Logger, SendEvent};
+//use self::writer::Writer;
+use self::logger::{Logger, SendEvent, send_event};
 
-fn fmt_by_strfmt(map: &HashMap<String, &str>) {
-    let _result = format!("{}-{}-{}", "File Name", "1234546", 12345);
-    let fmt = "{name}-{job}-{id}!".to_string();
-    let _result = strfmt(&fmt, map).unwrap();
-    //println!("{}", _result);
-}
+//fn fmt_by_strfmt(map: &HashMap<String, &str>) {
+//    let _result = format!("{}-{}-{}", "File Name", "1234546", 12345);
+//    let fmt = "{name}-{job}-{id}!".to_string();
+//    let _result = strfmt(&fmt, map).unwrap();
+//    //println!("{}", _result);
+//}
 
 fn main() {
     config::Config::create_instance(Some(PathBuf::from("./")));
     let filters = Filters::generate_by_config().get_filter();
     println!("filter: {:b}", filters);
 
-    let s = Arc::new(String::from("123456789adsfaldkjfs"));
-
     let mut ths = Vec::new();
 
-
-    let max_format_count = 500_0000;
+    let max_format_count = 50_0000;
     let t1 = max_format_count.clone(); 
-    let t2 = max_format_count.clone(); 
     let logger = Logger::init();
 
     for i in 0..8 {
-        let post = logger.get_poster();
+        //let post = logger.get_poster();
         ths.push(thread::spawn(
                 move || {
 
                     let d_now = Instant::now();
                     for _ in 0..t1 {
-                        let event = Event::new("Debug", i.to_string(), file!(), line!(), "testing ...99=====.....mmmmmmmm".to_string());
-                        post.send_event(event);
+                        log_debug!("testing {}...99=====.{}....mmmmmmm{}m", 1,2,3);
+                        //let event = Event::new("Debug", i.to_string(), file!(), line!(), );
+                        //post.send_event(event);
                     }
                     println!("consume time is : {}", d_now.elapsed().as_millis());
 
