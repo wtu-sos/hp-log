@@ -129,4 +129,16 @@ macro_rules! log_debug {
     }
 }
 
+#[macro_export]
+macro_rules! log_info {
+    ($($arg:tt)*) => {
+        send_event($crate::filter::FilterLevel::Info, file!(), line!(), format_args!($($arg)*));
+    }
+}
 
+#[macro_export]
+macro_rules! log_error {
+    ($($arg:tt)*) => {
+        send_event($crate::filter::FilterLevel::Error, file!(), line!(), format_args!($($arg)*));
+    }
+}

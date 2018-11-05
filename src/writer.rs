@@ -134,7 +134,7 @@ impl Writer {
             }
 
             self.event_cache.append(&mut lock);
-            println!("append logs, cache size: {}", self.event_cache.len());
+            //println!("append logs, cache size: {}", self.event_cache.len());
         }
 
         while !self.event_cache.is_empty() {

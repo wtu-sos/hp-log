@@ -14,6 +14,7 @@ extern crate lazy_static;
 use std::time::{Duration, Instant};
 use std::thread;
 use std::path::PathBuf;
+use std::io;
 
 //use std::sync::Arc;
 
@@ -42,39 +43,34 @@ fn main() {
 
     let mut ths = Vec::new();
 
-    let max_format_count = 50_0000;
+    let max_format_count = 500_0000;
     let t1 = max_format_count.clone(); 
-    let logger = Logger::init();
+    Logger::init();
 
-    for i in 0..8 {
+    let m_now = Instant::now();
+    for _i in 0..8 {
         //let post = logger.get_poster();
         ths.push(thread::spawn(
                 move || {
 
                     let d_now = Instant::now();
                     for _ in 0..t1 {
-                        log_debug!("testing {}...99=====.{}....mmmmmmm{}m", 1,2,3);
-                        //let event = Event::new("Debug", i.to_string(), file!(), line!(), );
-                        //post.send_event(event);
+                        log_debug!("1234567890-=dfghjkl;'kald;ngtohbjgbtesting {}...99=====.{}....mmmmmmm{}m", 1,2,3);
+                        log_error!("1234567890-=dfghjkl;'kald;ngtohbjgbtesting {}...99=====.{}....mmmmmmm{}m", 1,2,3);
                     }
                     println!("consume time is : {}", d_now.elapsed().as_millis());
 
                 }));
     }
     loop {
+        let mut buf = String::new();
+        let input = io::stdin().read_line(&mut buf);
+        if input.is_ok() {
+            println!("consume time is : {} msec", m_now.elapsed().as_millis());
+        }
         thread::sleep(Duration::from_micros(1u64));
     };
 
     //th2.join();
 }
 
-
-//let mut vars = HashMap::new();
-//vars.insert("name".to_string(), "File Name");
-//vars.insert("job".to_string(), "1234546");
-//vars.insert("id".to_string(), "12345");
-//let s_now = Instant::now();
-//for _ in 0..t2 {
-//    fmt_by_strfmt(&vars);
-//}
-//println!("consume time is : {}", s_now.elapsed().as_millis());
