@@ -1,6 +1,6 @@
 use std::collections::LinkedList;
 use std::sync::{Arc, Mutex, Condvar};
-use crate::appender::{Appender, FileAppender};
+use crate::appender::{Appender, FileAppender, ConsoleAppender};
 
 pub struct Writer {
     inner: Arc<Inner>,
@@ -52,7 +52,10 @@ impl Writer {
         Writer {
             inner: Arc::new(Inner::new()),
             event_cache: LinkedList::new(),
-            appenders: vec![Box::new(FileAppender::new(1024 * 1024, String::from("/tmp/log/test_file.log")))],
+            appenders: vec![
+                Box::new(FileAppender::new(1024 * 1024, String::from("/tmp/log/test_file.log"))),
+                Box::new(ConsoleAppender{}),
+            ],
         }
     }
 

@@ -94,9 +94,10 @@ pub struct ThreadLocalLogger {
 
 impl ThreadLocalLogger {
     pub fn new() -> Self {
+        let tid: u64 = unsafe { std::mem::transmute(thread::current().id()) };
         let thread_tag = match thread::current().name() {
-            Some(ref name) => name.to_string(),
-            None => format!("{:?}", thread::current().id()),
+            Some(ref name) => format!("{}:[{}]", name.to_string(), tid),
+            None => format!("thread:[{}]", tid),
         };
 
         Self {

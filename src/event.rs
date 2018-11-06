@@ -26,8 +26,8 @@ impl Event {
     }
 
     pub fn format_by_default(&self) -> String {
-        let t = self.tm.strftime("%Y%m%d-%H:%M:%S").unwrap();
-        format!("{}-{}-{}-{}:{}  {}\n", t, self.thread_tag, self.level.to_str(), self.file, self.line, self.msg)
+        let t = self.tm.strftime("[%Y-%m-%d %H:%M:%S]").unwrap();
+        format!("{}-{}-[{}]-{}:{}  {}\n", t, self.thread_tag, self.level.to_str(), self.file, self.line, self.msg)
     }
 }
 
