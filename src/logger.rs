@@ -1,6 +1,6 @@
 use crate::writer::{Writer};
 use crate::event::Event;
-use crate::filter::{self, FilterLevel};
+use crate::filter::{FilterLevel};
 use std::thread;
 use std::sync::{mpsc, Mutex};
 use std::time::Duration;

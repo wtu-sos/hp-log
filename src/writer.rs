@@ -1,27 +1,11 @@
 use std::collections::LinkedList;
-use std::fs::File;
-use std::fs::OpenOptions;
 use std::sync::{Arc, Mutex, Condvar};
-use std::io::Write;
-//use std::io::{Error, ErrorKind};
-//use std::thread::{self, JoinHandle};
-
-//use crate::filter::Filters;
-//use crate::event::Event;
-
-
-pub struct FileAppender {
-    //filter: Filters,
-    max_buf: usize,
-    buf: String,
-    file_name: String,
-    file: Option<File>,
-}
+use crate::appender::{Appender, FileAppender};
 
 pub struct Writer {
     inner: Arc<Inner>,
     event_cache: LinkedList<String>,
-    appenders: Vec<FileAppender>,
+    appenders: Vec<Box<Appender>>,
 }
 
 pub struct Inner {
@@ -31,47 +15,6 @@ pub struct Inner {
 
 pub struct Poster {
     inner: Arc<Inner>,
-}
-
-impl FileAppender {
-    pub fn new(buf_size: usize, file_name: String) -> Self {
-        let file = OpenOptions::new().create(true).write(true).open(file_name.clone()).unwrap();
-        Self {
-            max_buf: buf_size,
-            buf: String::with_capacity(buf_size),
-            file_name,
-            file: Some(file),
-        }
-    }
-
-    pub fn append_log(&mut self, log: &String) {
-        if self.buf.len() + log.len() > self.max_buf {
-            if self.write_file().is_err() {
-                panic!("there is something wrong while write log file");
-            }
-        }
-
-        self.buf.push_str(log);
-    }
-
-    pub fn write_file(&mut self) -> Result<(), String>{
-        if self.buf.is_empty() {
-            return Err(String::from("str empty"));
-        }
-        match &mut self.file {
-            Some(ref mut file) => {
-                let r = file.write_all(self.buf.as_bytes());
-
-                //println!("write log : {:?}, result : {:?}", self.buf, r);
-                self.buf.clear();
-                return r.map_err(|e| e.to_string());
-            },
-            None => {
-                println!("file is not exist!");
-                panic!("file is not exist!");
-            }
-        }
-    }
 }
 
 impl Inner {
@@ -92,6 +35,7 @@ impl Inner {
 }
 
 impl Poster {
+    #[allow(dead_code)]
     pub fn new(inner: Arc<Inner>) -> Poster {
         Poster {
             inner
@@ -108,7 +52,7 @@ impl Writer {
         Writer {
             inner: Arc::new(Inner::new()),
             event_cache: LinkedList::new(),
-            appenders: vec![FileAppender::new(1024 * 1024, String::from("/tmp/log/test_file.log"))],
+            appenders: vec![Box::new(FileAppender::new(1024 * 1024, String::from("/tmp/log/test_file.log")))],
         }
     }
 
@@ -118,10 +62,12 @@ impl Writer {
         }
     }
 
-    pub fn add_appender(&mut self, appender: FileAppender) {
+    #[allow(dead_code)]
+    pub fn add_appender(&mut self, appender: Box<Appender>) {
         self.appenders.push(appender);
     }
 
+    #[allow(dead_code)]
     pub fn insert_log(&self, log: String) {
         self.inner.insert_log(log);
     }
@@ -141,7 +87,7 @@ impl Writer {
             match self.event_cache.pop_front() {
                 Some(log) => {
                     for app in self.appenders.iter_mut() {
-                        app.append_log(&log);
+                        app.append(&log, self.event_cache.is_empty());
                     }
                 },
                 None => {
@@ -149,10 +95,6 @@ impl Writer {
                     break;
                 }
             }
-        }
-
-        for app in self.appenders.iter_mut() {
-            let _ = app.write_file();
         }
     }
 }

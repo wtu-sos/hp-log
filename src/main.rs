@@ -23,18 +23,12 @@ mod config;
 mod filter;
 mod writer;
 mod logger;
+mod appender;
 
-use self::event::Event;
-use self::filter::Filters;
+//use self::event::Event;
 //use self::writer::Writer;
-use self::logger::{Logger, SendEvent, send_event};
-
-//fn fmt_by_strfmt(map: &HashMap<String, &str>) {
-//    let _result = format!("{}-{}-{}", "File Name", "1234546", 12345);
-//    let fmt = "{name}-{job}-{id}!".to_string();
-//    let _result = strfmt(&fmt, map).unwrap();
-//    //println!("{}", _result);
-//}
+use self::filter::Filters;
+use self::logger::{Logger, send_event};
 
 fn main() {
     config::Config::create_instance(Some(PathBuf::from("./")));
