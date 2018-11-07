@@ -53,7 +53,7 @@ impl Writer {
             inner: Arc::new(Inner::new()),
             event_cache: LinkedList::new(),
             appenders: vec![
-                Box::new(FileAppender::new(1024 * 1024, String::from("/tmp/log/test_file.log"))),
+                Box::new(FileAppender::new(1024 * 1024, String::from("/tmp/log/test_file"))),
                 Box::new(ConsoleAppender{}),
             ],
         }

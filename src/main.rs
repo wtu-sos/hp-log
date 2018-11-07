@@ -27,19 +27,17 @@ mod appender;
 
 //use self::event::Event;
 //use self::writer::Writer;
-use self::filter::Filters;
-use self::logger::{Logger, send_event};
+//use self::filter::Filters;
+use self::logger::{send_event};
 
 fn main() {
     config::Config::create_instance(Some(PathBuf::from("./")));
-    let filters = Filters::generate_by_config().get_filter();
-    println!("filter: {:b}", filters);
+    //let filters = Filters::generate_by_config().get_filter();
 
     let mut ths = Vec::new();
 
-    let max_format_count = 500_0000;
+    let max_format_count = 50_0000;
     let t1 = max_format_count.clone(); 
-    Logger::init();
 
     let m_now = Instant::now();
     for _i in 0..8 {
