@@ -1,7 +1,7 @@
 use std::fs::{self, File};
 use std::fs::{OpenOptions, DirBuilder};
 use std::io::Write;
-use std::path::{PathBuf};
+use std::path::{Path, PathBuf};
 use crate::appender::Appender;
 
 pub struct FileAppender {
@@ -41,7 +41,9 @@ impl FileAppender {
         //println!("path: {:?}, file: {:?}, process_id: {}", p.parent(), p.file_name(), std::process::id());
         let exec_path = std::env::current_exe().unwrap_or(PathBuf::from("/tmp/unknow_file"));
         let exe = exec_path.as_path().file_name().unwrap();
-        let log_file_name = format!("{}/{}-{}-{}.log", dir_name, exe.to_str().unwrap(), std::process::id(), idx);
+        let p = Path::new(dir_name).with_file_name(exe.to_str().unwrap());
+        //println!("path: {}", p.display());
+        let log_file_name = format!("{}-{}-{}.log", p.display(), std::process::id(), idx);
         println!("new file name is: {}", log_file_name);
 
         log_file_name
