@@ -20,10 +20,10 @@ mod writer;
 mod logger;
 mod appender;
 
-use self::logger::{send_event};
+use self::logger::{Logger, send_event};
 
 fn main() {
-    config::Config::create_instance(Some(PathBuf::from("./")));
+    Logger::load_config(PathBuf::from("./"));
 
     let mut ths = Vec::new();
 
@@ -32,7 +32,6 @@ fn main() {
 
     let m_now = Instant::now();
     for _i in 0..8 {
-        //let post = logger.get_poster();
         ths.push(thread::spawn(
                 move || {
 
@@ -40,6 +39,7 @@ fn main() {
                     for idx in 0..t1 {
                         log_debug!("1234567890-=dfghjkl;'kald;ngtohbjgbtesting {}...99=====.{}....mmmmmmm{}m .... {}", 1,2,3, idx);
                         log_error!("1234567890-=dfghjkl;'kald;ngtohbjgbtesting {}...99=====.{}....mmmmmmm{}m ********* {}", 1,2,3, idx);
+                        log_info!("1234567890-=dfghjkl;'ka0000000000;ngtohbjgbtesting {}...99=====.{}....mmmmmmm{}m ********* {}", 1,2,3, idx);
                     }
                     println!("consume time is : {}", d_now.elapsed().as_millis());
 

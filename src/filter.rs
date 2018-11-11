@@ -1,5 +1,6 @@
 use crate::config::Config;
 
+#[derive(Copy, Clone)]
 pub enum FilterLevel {
     Debug = 1,
     Info  = 2,
@@ -51,7 +52,7 @@ impl Filters {
 
     #[allow(dead_code)]
     pub fn is_pass(&self, level: FilterLevel) -> bool {
-        return 1 == (self.filter & level as u8);
+        return 0 != (self.filter & level as u8);
     }
 }
 

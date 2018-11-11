@@ -1,11 +1,14 @@
 use crate::writer::{Writer};
 use crate::event::Event;
-use crate::filter::{FilterLevel};
+use crate::filter::{Filters, FilterLevel};
+use crate::config::Config;
+use crate::appender::{FileAppender, ConsoleAppender};
+
+use std::path::PathBuf;
 use std::thread;
 use std::sync::{mpsc, Mutex};
 use std::time::Duration;
 use std::fmt::Arguments;
-
 
 pub enum EventType {
     Log(Event),
@@ -23,9 +26,21 @@ pub struct Logger {
 }
 
 impl Logger {
+    pub fn load_config<T: Into<Option<PathBuf>>>( file_path: T) {
+        Config::create_instance(file_path.into());
+    }
+
     pub fn init() -> Self {
-        let w = Writer::new();
+        let mut w = Writer::new();
         let poster = w.get_poster();
+
+        if Config::instance().console_log() {
+            w.add_appender(Box::new(ConsoleAppender{}));
+        }
+
+        if Config::instance().file_log() {
+            w.add_appender(Box::new(FileAppender::new(Config::instance().file_temp_buf(), Config::instance().file_log_dir())));
+        }
 
         // init writer thread
         let wr_th = thread::spawn(move ||{
@@ -88,6 +103,7 @@ impl SendEvent for mpsc::Sender<EventType> {
 }
 
 pub struct ThreadLocalLogger {
+    filter: Filters,
     sender: mpsc::Sender<EventType>,
     thread_tag: String,
 } 
@@ -101,6 +117,7 @@ impl ThreadLocalLogger {
         };
 
         Self {
+            filter: Filters::generate_by_config(),
             sender: LOGGER_OBJ.get_poster(),
             thread_tag, 
         }
@@ -118,8 +135,10 @@ thread_local! {
 #[allow(unused)]
 pub fn send_event(level: FilterLevel, file: &'static str, line: u32, msg: Arguments) {
     LOG_SENDER.with(|s| {
-        let ev = Event::new(level, s.get_thread_tag(), file, line, msg);
-        s.sender.send_event(ev);
+        if s.filter.is_pass(level) {
+            let ev = Event::new(level, s.get_thread_tag(), file, line, msg);
+            s.sender.send_event(ev);
+        }
     });
 }
 

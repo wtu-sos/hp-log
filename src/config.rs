@@ -187,6 +187,10 @@ create_config!(
         warn: bool, true, false, "Warn";
         error: bool, true, false, "Error";
         fatal: bool, true, false, "Fatal";
+        console_log: bool, true, false, "whether to generate console log";
+        file_log: bool, true, false, "whether to generate file log";
+        file_log_dir: String, String::from("/tmp/log/"), false, "file generate path";
+        file_temp_buf: usize, 1024*1024, false, "log file write max buffer size once";
     );
 
 
