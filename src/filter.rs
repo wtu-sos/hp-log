@@ -22,7 +22,7 @@ impl Filters {
             filter |= FilterLevel::Debug as u8;
         }
 
-        println!("info : {}", Config::instance().info());
+        //println!("info : {}", Config::instance().info());
         if Config::instance().info() {
             filter |= FilterLevel::Info as u8;
         }

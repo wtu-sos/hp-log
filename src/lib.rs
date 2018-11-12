@@ -10,13 +10,16 @@ extern crate lazy_static;
 
 mod event;
 mod config;
-mod filter;
 mod writer;
-mod logger;
 mod appender;
 
+pub mod filter;
+pub mod logger;
+
 //log_info, log_debug, log_error, log_warn, log_fatal
-pub use crate::logger::{send_event, Logger};
+pub use crate::{
+    logger::{send_event, Logger},
+};
 
 mod test {
 
