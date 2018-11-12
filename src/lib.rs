@@ -15,7 +15,8 @@ mod writer;
 mod logger;
 mod appender;
 
-pub use self::logger::{Logger, send_event};
+//log_info, log_debug, log_error, log_warn, log_fatal
+pub use crate::logger::{send_event, Logger};
 
 mod test {
 

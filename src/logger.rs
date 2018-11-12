@@ -162,3 +162,18 @@ macro_rules! log_error {
         send_event($crate::filter::FilterLevel::Error, file!(), line!(), format_args!($($arg)*));
     }
 }
+
+#[macro_export]
+macro_rules! log_fatal {
+    ($($arg:tt)*) => {
+        send_event($crate::filter::FilterLevel::Fatal, file!(), line!(), format_args!($($arg)*));
+    }
+}
+
+#[macro_export]
+macro_rules! log_warn {
+    ($($arg:tt)*) => {
+        send_event($crate::filter::FilterLevel::Warn, file!(), line!(), format_args!($($arg)*));
+    }
+}
+
