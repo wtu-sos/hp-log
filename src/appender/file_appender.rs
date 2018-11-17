@@ -24,7 +24,7 @@ impl FileAppender {
                                     .write(true)
                                     .append(true)
                                     .open(log_name.clone())
-                                    .unwrap();
+                                    .expect(format!("open or create file error: {}", log_name).as_str());
 
         Self {
             max_buf: buf_size,
@@ -40,7 +40,7 @@ impl FileAppender {
     fn get_file_name(dir_name: &String, idx: u32) -> String {
         //println!("path: {:?}, file: {:?}, process_id: {}", p.parent(), p.file_name(), std::process::id());
         let exec_path = std::env::current_exe().unwrap_or(PathBuf::from("/tmp/unknow_file"));
-        let exe = exec_path.as_path().file_name().unwrap();
+        let exe = exec_path.as_path().file_name().expect("get exe path failed");
         let p = Path::new(dir_name).with_file_name(exe.to_str().unwrap());
         //println!("path: {}", p.display());
         let log_file_name = format!("{}-{}-{}.log", p.display(), std::process::id(), idx);
@@ -61,7 +61,7 @@ impl FileAppender {
                                                 .write(true)
                                                 .append(true)
                                                 .open(self.file_name.clone())
-                                                .unwrap();
+                                                .expect(format!("open or create file error: {}", self.file_name).as_str());
                     self.file = Some(file);
                 }
             },
