@@ -1,6 +1,6 @@
 use crate::writer::{Writer};
 use crate::event::Event;
-use crate::filter::{Filters, FilterLevel};
+use crate::filter::{Filters};
 use crate::config::Config;
 use crate::appender::{FileAppender, ConsoleAppender};
 
@@ -8,7 +8,6 @@ use std::path::PathBuf;
 use std::thread;
 use std::sync::{mpsc, Mutex};
 use std::time::Duration;
-use std::fmt::Arguments;
 
 pub enum EventType {
     Log(Event),
@@ -123,57 +122,16 @@ impl ThreadLocalLogger {
         }
     }
 
-    fn get_thread_tag(&self) -> String {
+    pub fn get_thread_tag(&self) -> String {
         self.thread_tag.clone()
     }
-}
 
-thread_local! {
-    static LOG_SENDER: ThreadLocalLogger = ThreadLocalLogger::new();
-}
-
-#[allow(unused)]
-pub fn send_event(level: FilterLevel, file: &'static str, line: u32, msg: Arguments) {
-    LOG_SENDER.with(|s| {
-        if s.filter.is_pass(level) {
-            let ev = Event::new(level, s.get_thread_tag(), file, line, msg);
-            s.sender.send_event(ev);
-        }
-    });
-}
-
-#[macro_export]
-macro_rules! log_debug {
-    ($($arg:tt)*) => {
-        send_event($crate::filter::FilterLevel::Debug, file!(), line!(), format_args!($($arg)*));
+    pub fn get_filter(&self) -> &Filters {
+        &self.filter
     }
-}
 
-#[macro_export]
-macro_rules! log_info {
-    ($($arg:tt)*) => {
-        send_event($crate::filter::FilterLevel::Info, file!(), line!(), format_args!($($arg)*));
-    }
-}
-
-#[macro_export]
-macro_rules! log_error {
-    ($($arg:tt)*) => {
-        send_event($crate::filter::FilterLevel::Error, file!(), line!(), format_args!($($arg)*));
-    }
-}
-
-#[macro_export]
-macro_rules! log_fatal {
-    ($($arg:tt)*) => {
-        send_event($crate::filter::FilterLevel::Fatal, file!(), line!(), format_args!($($arg)*));
-    }
-}
-
-#[macro_export]
-macro_rules! log_warn {
-    ($($arg:tt)*) => {
-        send_event($crate::filter::FilterLevel::Warn, file!(), line!(), format_args!($($arg)*));
+    pub fn get_sender(&self) -> &mpsc::Sender<EventType> {
+        &self.sender
     }
 }
 

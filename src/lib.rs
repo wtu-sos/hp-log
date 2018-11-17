@@ -16,10 +16,62 @@ mod appender;
 pub mod filter;
 pub mod logger;
 
-//log_info, log_debug, log_error, log_warn, log_fatal
+use std::fmt::Arguments;
+
 pub use crate::{
-    logger::{send_event, Logger},
+    logger::{ThreadLocalLogger, Logger, SendEvent},
+    event::Event,
+    filter::FilterLevel,
 };
+
+thread_local! {
+    static LOG_SENDER: ThreadLocalLogger = ThreadLocalLogger::new();
+}
+
+#[allow(unused)]
+pub fn send_event(level: FilterLevel, file: &'static str, line: u32, msg: Arguments) {
+    LOG_SENDER.with(|s| {
+        if s.get_filter().is_pass(level) {
+            let ev = Event::new(level, s.get_thread_tag(), file, line, msg);
+            s.get_sender().send_event(ev);
+        }
+    });
+}
+
+#[macro_export]
+macro_rules! log_debug {
+    ($($arg:tt)*) => {
+        send_event($crate::filter::FilterLevel::Debug, file!(), line!(), format_args!($($arg)*));
+    }
+}
+
+#[macro_export]
+macro_rules! log_info {
+    ($($arg:tt)*) => {
+        send_event($crate::filter::FilterLevel::Info, file!(), line!(), format_args!($($arg)*));
+    }
+}
+
+#[macro_export]
+macro_rules! log_error {
+    ($($arg:tt)*) => {
+        send_event($crate::filter::FilterLevel::Error, file!(), line!(), format_args!($($arg)*));
+    }
+}
+
+#[macro_export]
+macro_rules! log_fatal {
+    ($($arg:tt)*) => {
+        send_event($crate::filter::FilterLevel::Fatal, file!(), line!(), format_args!($($arg)*));
+    }
+}
+
+#[macro_export]
+macro_rules! log_warn {
+    ($($arg:tt)*) => {
+        send_event($crate::filter::FilterLevel::Warn, file!(), line!(), format_args!($($arg)*));
+    }
+}
 
 mod test {
 
