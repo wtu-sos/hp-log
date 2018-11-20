@@ -49,7 +49,8 @@ impl Logger {
 
                 // release cpu every frame 
                 // todo : to be more intelligent
-                thread::sleep(Duration::from_micros(1u64));
+                //thread::sleep(Duration::from_micros(1u64));
+                thread::yield_now();
             }
         });
 
@@ -67,7 +68,8 @@ impl Logger {
 
                 // release cpu every frame 
                 // todo : to be more intelligent
-                thread::sleep(Duration::from_micros(1u64));
+                //thread::sleep(Duration::from_micros(1u64));
+                thread::yield_now();
             }
         });
 
