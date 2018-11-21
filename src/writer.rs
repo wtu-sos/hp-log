@@ -1,6 +1,7 @@
 use std::collections::LinkedList;
 use std::sync::{Arc, Mutex, Condvar};
 use crate::appender::Appender;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 pub struct Writer {
     inner: Arc<Inner>,
@@ -10,6 +11,7 @@ pub struct Writer {
 
 pub struct Inner {
     cond: Condvar,
+    exit: AtomicBool,
     events: Mutex<LinkedList<String>>,
 }
 
@@ -20,6 +22,7 @@ pub struct Poster {
 impl Inner {
     fn new() -> Self {
         Inner {
+            exit: AtomicBool::new(false),
             cond: Condvar::new(),
             events: Mutex::new(LinkedList::new()),
         }
@@ -27,10 +30,17 @@ impl Inner {
 
     fn insert_log(&self, log: String) {
         let mut lock = self.events.lock().unwrap(); 
-        //println!("insert log : {:?}", log);
         lock.push_back(log);
-
         self.cond.notify_one();
+    }
+
+    fn set_terminate(&self, is_terminate: bool) {
+        self.exit.store(is_terminate, Ordering::Release);
+        self.cond.notify_one();
+    }
+
+    fn is_terminate(&self) -> bool {
+        self.exit.load(Ordering::Acquire)
     }
 }
 
@@ -44,6 +54,10 @@ impl Poster {
 
     pub fn insert_log(&self, log: String) {
         self.inner.insert_log(log);
+    }
+
+    pub fn set_terminate(&self, val: bool) {
+        self.inner.set_terminate(val);
     }
 }
 
@@ -96,6 +110,17 @@ impl Writer {
                 }
             }
         }
+    }
+
+    pub fn is_terminate(&self) -> bool {
+        if self.inner.is_terminate() && self.event_cache.is_empty() {
+            let lock = self.inner.events.lock().unwrap(); 
+            if lock.is_empty() {
+                return true;
+            }
+        }
+
+        false
     }
 }
 

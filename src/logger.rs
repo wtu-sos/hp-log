@@ -11,6 +11,7 @@ use std::time::Duration;
 
 pub enum EventType {
     Log(Event),
+    Terminate,
 }
 
 lazy_static! {
@@ -19,8 +20,8 @@ lazy_static! {
 
 #[allow(unused)]
 pub struct Logger {
-    wr_th: thread::JoinHandle<()>,
-    fmt_th: thread::JoinHandle<()>,
+    wr_th: Option<thread::JoinHandle<()>>,
+    fmt_th: Option<thread::JoinHandle<()>>,
     poster: Mutex<mpsc::Sender<EventType>>,
 }
 
@@ -47,6 +48,9 @@ impl Logger {
             loop {
                 w.fetch_logs();
 
+                if w.is_terminate() {
+                    break;
+                }
                 // release cpu every frame 
                 // todo : to be more intelligent
                 //thread::sleep(Duration::from_micros(1u64));
@@ -56,14 +60,23 @@ impl Logger {
 
         let (tx, rx) = mpsc::channel();
         let fmt_th = thread::spawn(move || {
+            let mut is_stop: bool = false;
             loop {
                 for msg in rx.iter() {
                     // todo : handle msg 
                     match msg {
                         EventType::Log(log) => {
                             poster.insert_log(log.format_by_default());
-                        }
+                        },
+                        EventType::Terminate => {
+                            poster.set_terminate(true);
+                            is_stop = true;
+                        },
                     }
+                }
+
+                if is_stop {
+                    break;
                 }
 
                 // release cpu every frame 
@@ -74,8 +87,8 @@ impl Logger {
         });
 
         Self {
-            wr_th,
-            fmt_th,
+            wr_th: Some(wr_th),
+            fmt_th: Some(fmt_th),
             poster: Mutex::new(tx),
         }
     }    
@@ -83,13 +96,11 @@ impl Logger {
     pub fn get_poster(&self) -> mpsc::Sender<EventType> {
         self.poster.lock().unwrap().clone()
     }
-}
 
-impl Drop for Logger {
-    fn drop(&mut self) {
-        //self.fmt_th.join();
-        //self.wr_th.join();
+    pub fn close() {
+        LOGGER_OBJ.get_poster().send(EventType::Terminate);
     }
+    
 }
 
 pub trait SendEvent {
