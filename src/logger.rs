@@ -7,7 +7,6 @@ use crate::appender::{FileAppender, ConsoleAppender};
 use std::path::PathBuf;
 use std::thread;
 use std::sync::{mpsc, Mutex};
-use std::time::Duration;
 
 pub enum EventType {
     Log(Event),
@@ -20,8 +19,8 @@ lazy_static! {
 
 #[allow(unused)]
 pub struct Logger {
-    wr_th: Option<thread::JoinHandle<()>>,
-    fmt_th: Option<thread::JoinHandle<()>>,
+    wr_th: Mutex<Option<thread::JoinHandle<()>>>,
+    fmt_th: Mutex<Option<thread::JoinHandle<()>>>,
     poster: Mutex<mpsc::Sender<EventType>>,
 }
 
@@ -87,8 +86,8 @@ impl Logger {
         });
 
         Self {
-            wr_th: Some(wr_th),
-            fmt_th: Some(fmt_th),
+            wr_th: Mutex::new(Some(wr_th)),
+            fmt_th: Mutex::new(Some(fmt_th)),
             poster: Mutex::new(tx),
         }
     }    
@@ -98,7 +97,15 @@ impl Logger {
     }
 
     pub fn close() {
-        LOGGER_OBJ.get_poster().send(EventType::Terminate);
+        if let Err(e) = LOGGER_OBJ.get_poster().send(EventType::Terminate) {
+            panic!("can not send terminate info to log threads! error: {}", e.to_string());
+        }
+        if let Some(w_th) = LOGGER_OBJ.wr_th.lock().expect("get write thread failed").take() {
+            w_th.join().expect("Couldn't join on the associated thread");
+        }
+        if let Some(fmt_th) = LOGGER_OBJ.fmt_th.lock().expect("get format thread failed").take() {
+            fmt_th.join().expect("Couldn't join on the associated thread");
+        }
     }
     
 }
