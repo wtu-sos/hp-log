@@ -48,6 +48,7 @@ impl Logger {
                 w.fetch_logs();
 
                 if w.is_terminate() {
+                    //println!("writer thread exit!!");
                     break;
                 }
                 // release cpu every frame 
@@ -68,13 +69,15 @@ impl Logger {
                             poster.insert_log(log.format_by_default());
                         },
                         EventType::Terminate => {
-                            poster.set_terminate(true);
                             is_stop = true;
+                            break;
                         },
                     }
                 }
 
                 if is_stop {
+                    //println!("farmat thread exit!!");
+                    poster.set_terminate(true);
                     break;
                 }
 
@@ -97,6 +100,7 @@ impl Logger {
     }
 
     pub fn close() {
+        //println!("logger closing");
         if let Err(e) = LOGGER_OBJ.get_poster().send(EventType::Terminate) {
             panic!("can not send terminate info to log threads! error: {}", e.to_string());
         }
