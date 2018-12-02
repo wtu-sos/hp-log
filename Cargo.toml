@@ -3,6 +3,8 @@ name = "hp-log"
 version = "0.2.0"
 authors = ["junyan.yjy <junyan.yjy@alibaba-inc.com>"]
 edition = "2018"
+homepage = "https://github.com/wtu-sos/hp-log"
+repository = "https://github.com/wtu-sos/hp-log"
 
 [dependencies]
 strfmt = "*"
