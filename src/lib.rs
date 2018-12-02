@@ -39,6 +39,7 @@ pub fn send_event(level: FilterLevel, file: &'static str, line: u32, msg: Argume
 }
 
 #[allow(unused)]
+#[macro_export]
 macro_rules! log {
     ($lv: expr, $arg: expr) => {
         $crate::send_event($lv, file!(), line!(), $arg);
