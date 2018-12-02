@@ -1,6 +1,6 @@
 [package]
 name = "hp-log"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["junyan.yjy <junyan.yjy@alibaba-inc.com>"]
 edition = "2018"
 
