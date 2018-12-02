@@ -25,7 +25,7 @@ pub use crate::{
 };
 
 thread_local! {
-    static LOG_SENDER: ThreadLocalLogger = ThreadLocalLogger::new();
+    pub static LOG_SENDER: ThreadLocalLogger = ThreadLocalLogger::new();
 }
 
 #[allow(unused)]
@@ -38,38 +38,45 @@ pub fn send_event(level: FilterLevel, file: &'static str, line: u32, msg: Argume
     });
 }
 
-#[macro_export]
-macro_rules! log_debug {
-    ($($arg:tt)*) => {
-        send_event($crate::filter::FilterLevel::Debug, file!(), line!(), format_args!($($arg)*));
+#[allow(unused)]
+macro_rules! log {
+    ($lv: expr, $arg: expr) => {
+        $crate::send_event($lv, file!(), line!(), $arg);
     }
 }
 
 #[macro_export]
-macro_rules! log_info {
+macro_rules! debug {
     ($($arg:tt)*) => {
-        send_event($crate::filter::FilterLevel::Info, file!(), line!(), format_args!($($arg)*));
+        log!($crate::filter::FilterLevel::Debug, format_args!($($arg)*));
     }
 }
 
 #[macro_export]
-macro_rules! log_error {
+macro_rules! info {
     ($($arg:tt)*) => {
-        send_event($crate::filter::FilterLevel::Error, file!(), line!(), format_args!($($arg)*));
+        log!($crate::filter::FilterLevel::Info, format_args!($($arg)*));
     }
 }
 
 #[macro_export]
-macro_rules! log_fatal {
+macro_rules! error {
     ($($arg:tt)*) => {
-        send_event($crate::filter::FilterLevel::Fatal, file!(), line!(), format_args!($($arg)*));
+        log!($crate::filter::FilterLevel::Error, format_args!($($arg)*));
     }
 }
 
 #[macro_export]
-macro_rules! log_warn {
+macro_rules! fatal {
     ($($arg:tt)*) => {
-        send_event($crate::filter::FilterLevel::Warn, file!(), line!(), format_args!($($arg)*));
+        log!($crate::filter::FilterLevel::Fatal, format_args!($($arg)*));
+    }
+}
+
+#[macro_export]
+macro_rules! warn {
+    ($($arg:tt)*) => {
+        log!($crate::filter::FilterLevel::Warn, format_args!($($arg)*));
     }
 }
 
@@ -81,7 +88,7 @@ mod test {
         use std::thread;
         use std::path::PathBuf;
         //use std::io;
-        use crate::{send_event, Logger, log_info, log_debug, log_error};
+        use crate::{Logger, info, debug, error};
 
         Logger::load_config(PathBuf::from("./"));
 
@@ -97,9 +104,9 @@ mod test {
 
                         //let d_now = Instant::now();
                         for idx in 0..t1 {
-                            log_debug!("1234567890-=dfghjkl;'kald;ngtohbjgbtesting {}...99=====.{}....mmmmmmm{}m .... {}", 1,2,3, idx);
-                            log_error!("1234567890-=dfghjkl;'kald;ngtohbjgbtesting {}...99=====.{}....mmmmmmm{}m ********* {}", 1,2,3, idx);
-                            log_info!("1234567890-=dfghjkl;'ka0000000000;ngtohbjgbtesting {}...99=====.{}....mmmmmmm{}m ********* {}", 1,2,3, idx);
+                            debug!("1234567890-=dfghjkl;'kald;ngtohbjgbtesting {}...99=====.{}....mmmmmmm{}m .... {}", 1,2,3, idx);
+                            error!("1234567890-=dfghjkl;'kald;ngtohbjgbtesting {}...99=====.{}....mmmmmmm{}m ********* {}", 1,2,3, idx);
+                            info!("1234567890-=dfghjkl;'ka0000000000;ngtohbjgbtesting {}...99=====.{}....mmmmmmm{}m ********* {}", 1,2,3, idx);
                         }
                         //println!("consume time is : {}", d_now.elapsed().as_millis());
 
