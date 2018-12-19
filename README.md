@@ -24,3 +24,9 @@ fn main() {
 	Logger::close();
 }
 ```
+## License
+`hp-log` is distributed under the terms of the Apache License (Version 2.0).
+
+See [LICENSE](LICENSE) for details.
+
+Copyright 2018 wtu-sos
