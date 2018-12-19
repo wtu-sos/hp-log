@@ -8,7 +8,20 @@ use the newest version by git
 [dependencies]
 hp-log = {git = "https://github.com/wtu-sos/hp-log.git"}
 ```
+## Config File
+``` toml
+# log level filter
+debug=true   
+info=true
+warn=true
+error=true
+fatal=true
 
+console_log=true  # Whether the output is on the console
+file_log=true   # Whether to output in the log file 
+```
+
+## Generated Code Example
 ``` rust
 #[macro_use]
 extern crate hp_log;
@@ -24,6 +37,7 @@ fn main() {
 	Logger::close();
 }
 ```
+
 ## License
 `hp-log` is distributed under the terms of the Apache License (Version 2.0).
 
