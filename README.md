@@ -3,8 +3,11 @@ high performance multi-thread log implement in rust
 
 ## Usage
 
+use the newest version by git
 ``` toml
 [dependencies]
+hp-log = {git = "https://github.com/wtu-sos/hp-log.git"}
+```
 
 ``` rust
 #[macro_use]
@@ -20,4 +23,4 @@ fn main() {
 	fatal!("main running");
 	Logger::close();
 }
-
+```
