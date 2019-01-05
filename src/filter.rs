@@ -71,11 +71,11 @@ impl FilterLevel {
 
     pub fn fg_color(&self) -> Color {
         match self {
-            FilterLevel::Debug => Color::Green,
-            FilterLevel::Info  => Color::White,
+            FilterLevel::Debug => Color::Cyan,
+            FilterLevel::Info  => Color::Green,
             FilterLevel::Warn  => Color::Yellow,
             FilterLevel::Error => Color::Red,
-            FilterLevel::Fatal => Color::Magenta,
+            FilterLevel::Fatal => Color::Red,
         } 
     }
 
@@ -85,7 +85,7 @@ impl FilterLevel {
             FilterLevel::Info  => Color::Black,
             FilterLevel::Warn  => Color::Black,
             FilterLevel::Error => Color::Black,
-            FilterLevel::Fatal => Color::Black,
+            FilterLevel::Fatal => Color::White,
         } 
     }
 

@@ -1,8 +1,9 @@
 use std::fmt;
 use crate::filter::FilterLevel;
 /*
+ * 详细：man console_codes
  * \x1b[显示方式;前景色;背景色m输出字符串\x1b[0m
- * 显示：0(默认)、1(粗体/高亮)、22(非粗体)、4(单条下划线)、24(无下划线)、5(闪烁)、25(无闪烁)、7(反显、翻转前景色和背景色)、27(无反显)
+ * 显示：0(默认)、1(粗体) 2(高亮)、22(非粗体)、4(单条下划线)、24(无下划线)、5(闪烁)、25(无闪烁)、7(反显、翻转前景色和背景色)、27(无反显)
  * 颜色：0(黑)、1(红)、2(绿)、 3(黄)、4(蓝)、5(洋红)、6(青)、7(白)
  *      前景色为30+颜色值，如31表示前景色为红色；背景色为40+颜色值，如41表示背景色为红色
  * */
@@ -31,7 +32,7 @@ T: fmt::Display,
 {
     #[cfg(unix)]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "\x1B[0;3{};4{}m", 
+        write!(f, "\x1B[0;2;4;3{};4{}m", 
                self.level.fg_color().color_byte(), 
                self.level.bg_color().color_byte())?;
         fmt::Display::fmt(&self.text, f)?;
