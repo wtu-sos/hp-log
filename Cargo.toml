@@ -13,3 +13,7 @@ serde = "*"
 serde_derive = "*"
 toml = "*"
 lazy_static = "1.1.0"
+
+[[example]]
+name = "simple"
+path = "example/simple.rs"

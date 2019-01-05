@@ -12,6 +12,7 @@ mod event;
 mod config;
 mod writer;
 mod appender;
+mod color;
 
 pub mod filter;
 pub mod logger;

@@ -1,2 +1,2 @@
-debug=false
-console_log=false
+debug=true
+console_log=true

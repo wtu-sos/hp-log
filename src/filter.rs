@@ -1,4 +1,5 @@
 use crate::config::Config;
+use crate::color::Color;
 
 #[derive(Copy, Clone)]
 pub enum FilterLevel {
@@ -65,6 +66,26 @@ impl FilterLevel {
             FilterLevel::Warn  => "WARN",
             FilterLevel::Error => "ERROR",
             FilterLevel::Fatal => "FATAL",
+        } 
+    }
+
+    pub fn fg_color(&self) -> Color {
+        match self {
+            FilterLevel::Debug => Color::Green,
+            FilterLevel::Info  => Color::White,
+            FilterLevel::Warn  => Color::Yellow,
+            FilterLevel::Error => Color::Red,
+            FilterLevel::Fatal => Color::Magenta,
+        } 
+    }
+
+    pub fn bg_color(&self) -> Color {
+        match self {
+            FilterLevel::Debug => Color::Black,
+            FilterLevel::Info  => Color::Black,
+            FilterLevel::Warn  => Color::Black,
+            FilterLevel::Error => Color::Black,
+            FilterLevel::Fatal => Color::Black,
         } 
     }
 
