@@ -1,18 +1,20 @@
 use std::collections::LinkedList;
 use std::sync::{Arc, Mutex, Condvar};
-use crate::appender::Appender;
 use std::sync::atomic::{AtomicBool, Ordering};
+
+use crate::appender::Appender;
+use crate::event::LogicEvent;
 
 pub struct Writer {
     inner: Arc<Inner>,
-    event_cache: LinkedList<String>,
+    event_cache: LinkedList<LogicEvent>,
     appenders: Vec<Box<Appender>>,
 }
 
 pub struct Inner {
     cond: Condvar,
     exit: AtomicBool,
-    events: Mutex<LinkedList<String>>,
+    events: Mutex<LinkedList<LogicEvent>>,
 }
 
 pub struct Poster {
@@ -28,7 +30,7 @@ impl Inner {
         }
     }
 
-    fn insert_log(&self, log: String) {
+    fn insert_log(&self, log: LogicEvent) {
         let mut lock = self.events.lock().unwrap(); 
         lock.push_back(log);
         self.cond.notify_one();
@@ -52,7 +54,7 @@ impl Poster {
         }
     }
 
-    pub fn insert_log(&self, log: String) {
+    pub fn insert_log(&self, log: LogicEvent) {
         self.inner.insert_log(log);
     }
 
@@ -82,7 +84,7 @@ impl Writer {
     }
 
     #[allow(dead_code)]
-    pub fn insert_log(&self, log: String) {
+    pub fn insert_log(&self, log: LogicEvent) {
         self.inner.insert_log(log);
     }
     

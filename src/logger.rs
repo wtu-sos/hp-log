@@ -66,7 +66,7 @@ impl Logger {
                     // todo : handle msg 
                     match msg {
                         EventType::Log(log) => {
-                            poster.insert_log(log.format_by_default());
+                            poster.insert_log(log.to_logic());
                         },
                         EventType::Terminate => {
                             is_stop = true;

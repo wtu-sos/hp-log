@@ -2,6 +2,11 @@ use time;
 use crate::filter::FilterLevel;
 use std::fmt;
 
+pub struct LogicEvent {
+    pub level: FilterLevel,
+    pub content: String,
+}
+
 pub struct Event {
     pub time_spec: time::Timespec,
     pub tm: time::Tm,
@@ -28,6 +33,13 @@ impl Event {
     pub fn format_by_default(&self) -> String {
         let t = self.tm.strftime("[%Y-%m-%d %H:%M:%S]").unwrap();
         format!("{}-{}-[{}]-{}:{}  {}\n", t, self.thread_tag, self.level.to_str(), self.file, self.line, self.msg)
+    }
+
+    pub fn to_logic(self) -> LogicEvent {
+        LogicEvent {
+            content: self.format_by_default(),
+            level: self.level,
+        }
     }
 }
 

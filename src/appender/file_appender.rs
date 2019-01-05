@@ -2,6 +2,8 @@ use std::fs::{self, File};
 use std::fs::{OpenOptions, DirBuilder};
 use std::io::Write;
 use std::path::{Path, PathBuf};
+
+use crate::event::LogicEvent;
 use crate::appender::Appender;
 
 pub struct FileAppender {
@@ -95,14 +97,14 @@ impl FileAppender {
 }
 
 impl Appender for FileAppender {
-    fn append(&mut self, log: &String, flush: bool) {
-        if self.buf.len() + log.len() > self.max_buf {
+    fn append(&mut self, log: &LogicEvent, flush: bool) {
+        if self.buf.len() + log.content.len() > self.max_buf {
             if self.write_file().is_err() {
                 panic!("there is something wrong while write log file");
             }
         }
 
-        self.buf.push_str(log);
+        self.buf.push_str(log.content.as_str());
 
         if flush {
             if self.write_file().is_err() {
