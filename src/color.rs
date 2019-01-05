@@ -38,10 +38,10 @@ T: fmt::Display,
         write!(f, "\x1B[0m")?;
         Ok(())
     }
+
     #[cfg(windows)]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Display::fmt(&self.text, f)?;
-        write!(f)?;
+        write!(f, "{}", self.text)?;
         Ok(())
     }
 }
