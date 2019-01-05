@@ -13,16 +13,14 @@ where
 T: fmt::Display,
 {
     text: T,
-    fg: Color,
-    bg: Color,
+    level: FilterLevel,
 }
 
 impl<T: fmt::Display> RichContent<T> {
     pub fn new(content: T, level: FilterLevel) -> Self {
         RichContent {
             text: content,
-            fg: level.fg_color(),
-            bg: level.bg_color(),
+            level,
         }
     }
 }
@@ -31,10 +29,19 @@ impl<T> fmt::Display for RichContent<T>
 where
 T: fmt::Display,
 {
+    #[cfg(unix)]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "\x1B[0;3{};4{}m", self.fg.color_byte(), self.bg.color_byte())?;
+        write!(f, "\x1B[0;3{};4{}m", 
+               self.level.fg_color().color_byte(), 
+               self.level.bg_color().color_byte())?;
         fmt::Display::fmt(&self.text, f)?;
         write!(f, "\x1B[0m")?;
+        Ok(())
+    }
+    #[cfg(windows)]
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Display::fmt(&self.text, f)?;
+        write!(f)?;
         Ok(())
     }
 }
