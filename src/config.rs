@@ -180,17 +180,35 @@ macro_rules! create_config {
     )
 }
 
+#[derive(Deserialize, Serialize, Debug, Copy, Clone)]
+pub struct FilterConf {
+    pub switch: bool, 
+    pub debug: bool,
+    pub info: bool, 
+    pub warn: bool, 
+    pub error: bool,
+    pub fatal: bool,
+}
+
+impl Default for FilterConf {
+    fn default() -> Self {
+        Self {
+            switch: true,
+            debug:true,
+            info: true,
+            warn: true,
+            error:true,
+            fatal: true,
+        }
+    }
+}
+
 create_config!(
        // Comments. macros, and strings
-        debug: bool, true, false, "Debug";
-        info: bool, true, false, "Info";
-        warn: bool, true, false, "Warn";
-        error: bool, true, false, "Error";
-        fatal: bool, true, false, "Fatal";
-        console_log: bool, true, false, "whether to generate console log";
-        file_log: bool, true, false, "whether to generate file log";
         file_log_dir: String, String::from("/tmp/log/"), false, "file generate path";
         file_temp_buf: usize, 1024*1024, false, "log file write max buffer size once";
+        console_conf: FilterConf, FilterConf::default(), false, "console filter data";
+        file_conf: FilterConf, FilterConf::default(), false, "console filter data";
     );
 
 

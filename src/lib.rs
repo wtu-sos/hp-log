@@ -32,10 +32,8 @@ thread_local! {
 #[allow(unused)]
 pub fn send_event(level: FilterLevel, file: &'static str, line: u32, msg: Arguments) {
     LOG_SENDER.with(|s| {
-        if s.get_filter().is_pass(level) {
-            let ev = Event::new(level, s.get_thread_tag(), file, line, msg);
-            s.get_sender().send_event(ev);
-        }
+        let ev = Event::new(level, s.get_thread_tag(), file, line, msg);
+        s.get_sender().send_event(ev);
     });
 }
 

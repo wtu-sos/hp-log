@@ -1,6 +1,5 @@
-use crate::writer::{Writer};
+use crate::writer::Writer;
 use crate::event::Event;
-use crate::filter::{Filters};
 use crate::config::Config;
 use crate::appender::{FileAppender, ConsoleAppender};
 
@@ -33,12 +32,14 @@ impl Logger {
         let mut w = Writer::new();
         let poster = w.get_poster();
 
-        if Config::instance().console_log() {
-            w.add_appender(Box::new(ConsoleAppender{}));
+        let console_conf = Config::instance().console_conf();
+        if console_conf.switch {
+            w.add_appender(Box::new(ConsoleAppender::new(&console_conf)));
         }
 
-        if Config::instance().file_log() {
-            w.add_appender(Box::new(FileAppender::new(Config::instance().file_temp_buf(), Config::instance().file_log_dir())));
+        let file_conf = Config::instance().file_conf();
+        if file_conf.switch {
+            w.add_appender(Box::new(FileAppender::new(&file_conf, Config::instance().file_temp_buf(), Config::instance().file_log_dir())));
         }
 
         // init writer thread
@@ -126,7 +127,6 @@ impl SendEvent for mpsc::Sender<EventType> {
 }
 
 pub struct ThreadLocalLogger {
-    filter: Filters,
     sender: mpsc::Sender<EventType>,
     thread_tag: String,
 } 
@@ -140,7 +140,6 @@ impl ThreadLocalLogger {
         };
 
         Self {
-            filter: Filters::generate_by_config(),
             sender: LOGGER_OBJ.get_poster(),
             thread_tag, 
         }
@@ -148,10 +147,6 @@ impl ThreadLocalLogger {
 
     pub fn get_thread_tag(&self) -> String {
         self.thread_tag.clone()
-    }
-
-    pub fn get_filter(&self) -> &Filters {
-        &self.filter
     }
 
     pub fn get_sender(&self) -> &mpsc::Sender<EventType> {

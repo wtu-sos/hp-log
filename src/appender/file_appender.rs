@@ -5,9 +5,11 @@ use std::path::{Path, PathBuf};
 
 use crate::event::LogicEvent;
 use crate::appender::Appender;
+use crate::filter::Filters;
+use crate::config::FilterConf;
 
 pub struct FileAppender {
-    //filter: Filters,
+    filter: Filters,
     max_buf: usize,
     buf: String,
     log_max_size: u64,
@@ -18,7 +20,7 @@ pub struct FileAppender {
 }
 
 impl FileAppender {
-    pub fn new(buf_size: usize, base_dir: String) -> Self {
+    pub fn new(conf: &FilterConf, buf_size: usize, base_dir: String) -> Self {
         // todo : check current index
         let _ = DirBuilder::new().recursive(true).create(base_dir.clone());
         let log_name = FileAppender::get_file_name(&base_dir, 0);
@@ -29,6 +31,7 @@ impl FileAppender {
                                     .expect(format!("open or create file error: {}", log_name).as_str());
 
         Self {
+            filter: Filters::new(conf),
             max_buf: buf_size,
             buf: String::with_capacity(buf_size),
             log_max_size: 1024u64*1024u64*512,
@@ -98,6 +101,10 @@ impl FileAppender {
 
 impl Appender for FileAppender {
     fn append(&mut self, log: &LogicEvent, flush: bool) {
+        if !self.filter.is_pass(log.level) {
+            return;
+        }
+
         if self.buf.len() + log.content.len() > self.max_buf {
             if self.write_file().is_err() {
                 panic!("there is something wrong while write log file");

@@ -1,4 +1,4 @@
-use crate::config::Config;
+use crate::config::FilterConf;
 use crate::color::Color;
 
 #[derive(Copy, Clone)]
@@ -17,26 +17,25 @@ pub struct Filters {
 
 #[allow(dead_code)]
 impl Filters {
-    pub fn generate_by_config() -> Self {
+    pub fn new(conf: &FilterConf) -> Self {
+        //println!("conf : {:?}", conf);
         let mut filter = 0u8;
-        if Config::instance().debug() {
+        if conf.debug {
             filter |= FilterLevel::Debug as u8;
         }
-
-        //println!("info : {}", Config::instance().info());
-        if Config::instance().info() {
+        if conf.info {
             filter |= FilterLevel::Info as u8;
         }
 
-        if Config::instance().warn() {
+        if conf.warn {
             filter |= FilterLevel::Warn as u8;
         }
 
-        if Config::instance().error() {
+        if conf.error {
             filter |= FilterLevel::Error as u8;
         }
 
-        if Config::instance().fatal() {
+        if conf.fatal {
             filter |= FilterLevel::Fatal as u8;
         }
 
