@@ -11,14 +11,25 @@ hp-log = {git = "https://github.com/wtu-sos/hp-log.git"}
 ## Config File
 ``` toml
 # log level filter
-debug=true   
-info=true
-warn=true
-error=true
-fatal=true
+[console_conf]
+switch = true  # Whether the output is on the console
+debug = true
+info = true 
+warn = true 
+error = true
+fatal = true
 
-console_log=true  # Whether the output is on the console
-file_log=true   # Whether to output in the log file 
+[file_conf]
+switch = true  # Whether to output in the log file 
+debug = true
+info = true 
+warn = true 
+error = true
+fatal = true
+
+file_log_dir = "/tmp/log/" 
+file_temp_buf = "1048576"
+
 ```
 
 ## Generated Code Example
