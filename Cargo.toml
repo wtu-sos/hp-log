@@ -1,12 +1,13 @@
 [package]
 name = "hp-log"
 version = "0.2.0"
-authors = ["junyan.yjy <junyan.yjy@alibaba-inc.com>"]
+authors = ["wtu-sos <wtusos@gmail.com>"]
 edition = "2018"
 homepage = "https://github.com/wtu-sos/hp-log"
 repository = "https://github.com/wtu-sos/hp-log"
 license = "Apache-2.0"
 description = """
+try to implement high performance log :w
 """
 
 
