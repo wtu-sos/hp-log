@@ -5,13 +5,17 @@ authors = ["junyan.yjy <junyan.yjy@alibaba-inc.com>"]
 edition = "2018"
 homepage = "https://github.com/wtu-sos/hp-log"
 repository = "https://github.com/wtu-sos/hp-log"
+license = "Apache-2.0"
+description = """
+"""
+
 
 [dependencies]
-strfmt = "*"
-time = "*"
-serde = "*"
-serde_derive = "*"
-toml = "*"
+strfmt = "0.1.6"
+time = "0.1.41"
+serde = "1.0.84"
+serde_derive = "1.0.84"
+toml = "0.4.10"
 lazy_static = "1.1.0"
 
 [[example]]
