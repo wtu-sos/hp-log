@@ -4,6 +4,9 @@
 extern crate serde_derive;
 extern crate toml;
 
+#[cfg(windows)]
+extern crate wincolor;
+
 #[macro_use]
 extern crate lazy_static;
 

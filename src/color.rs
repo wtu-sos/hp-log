@@ -7,6 +7,8 @@ use crate::filter::FilterLevel;
  * 颜色：0(黑)、1(红)、2(绿)、 3(黄)、4(蓝)、5(洋红)、6(青)、7(白)
  *      前景色为30+颜色值，如31表示前景色为红色；背景色为40+颜色值，如41表示背景色为红色
  * */
+#[cfg(windows)]
+use wincolor;
 
 #[allow(dead_code)]
 pub struct RichContent<T>
@@ -41,8 +43,13 @@ T: fmt::Display,
     }
 
     #[cfg(windows)]
+    #[allow(unused_must_use)]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut con = wincolor::Console::stdout().unwrap();
+        con.fg(wincolor::Intense::Yes, self.level.fg_color().to_win_color());
+        con.bg(wincolor::Intense::Yes, self.level.bg_color().to_win_color());
         write!(f, "{}", self.text)?;
+        con.reset();
         Ok(())
     }
 }
@@ -60,9 +67,10 @@ pub enum Color {
     White,
 } 
 
+#[allow(dead_code)]
 impl Color {
     fn color_byte(&self) -> char {
-        match *self {
+        match self {
             Color::Black => '0',
             Color::Red => '1',
             Color::Green => '2',
@@ -71,6 +79,19 @@ impl Color {
             Color::Magenta => '5',
             Color::Cyan => '6',
             Color::White => '7',
+        }
+    }
+    #[cfg(windows)]
+    fn to_win_color(&self) -> wincolor::Color {
+        match self {
+            Color::Black => wincolor::Color::Black,
+            Color::Red => wincolor::Color::Red,
+            Color::Green => wincolor::Color::Green,
+            Color::Yellow => wincolor::Color::Yellow,
+            Color::Blue => wincolor::Color::Blue,
+            Color::Magenta => wincolor::Color::Magenta,
+            Color::Cyan => wincolor::Color::Cyan,
+            Color::White => wincolor::Color::White,
         }
     }
 }
