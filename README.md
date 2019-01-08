@@ -3,6 +3,11 @@ high performance multi-thread log implement in rust
 
 ## Usage
 
+use the newest version from crate.io (recommand)
+``` toml
+[dependencies]
+hp-log = "0.2.0"
+```
 use the newest version by git
 ``` toml
 [dependencies]
