@@ -18,6 +18,7 @@ mod color;
 
 pub mod filter;
 pub mod logger;
+pub mod cpp;
 
 use std::fmt::Arguments;
 
