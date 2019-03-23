@@ -24,6 +24,7 @@ impl FileAppender {
         // todo : check current index
         let _ = DirBuilder::new().recursive(true).create(base_dir.clone());
         let log_name = FileAppender::get_file_name(&base_dir, 0);
+        //println!("base dir: {:?}, log_name:{:?}", base_dir, log_name);
         let file = OpenOptions::new().create(true)
                                     .write(true)
                                     .append(true)
@@ -43,11 +44,12 @@ impl FileAppender {
     }
 
     fn get_file_name(dir_name: &String, idx: u32) -> String {
-        //println!("path: {:?}, file: {:?}, process_id: {}", p.parent(), p.file_name(), std::process::id());
         let exec_path = std::env::current_exe().unwrap_or(PathBuf::from("/tmp/unknow_file"));
         let exe = exec_path.as_path().file_name().expect("get exe path failed");
-        let p = Path::new(dir_name).with_file_name(exe.to_str().unwrap());
+        //println!("exec_path: {:?}, exe:{:?}, dir_name:{:?}", exec_path, exe, dir_name);
+        let p = Path::new(dir_name).join(exe.to_str().unwrap());
         //println!("path: {}", p.display());
+        //println!("path: {:?}, file: {:?}, process_id: {}", p.parent(), p.file_name(), std::process::id());
         let log_file_name = format!("{}-{}-{}.log", p.display(), std::process::id(), idx);
         println!("new file name is: {}", log_file_name);
 
