@@ -10,9 +10,9 @@ description = """
 try to implement high performance log :w
 """
 
-[lib]
-name = "hplog"
-crate-type = ["dylib"]
+#[lib]
+#name = "hplog"
+#crate-type = ["dylib"]
 
 [dependencies]
 strfmt = "0.1.6"
