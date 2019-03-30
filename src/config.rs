@@ -187,7 +187,7 @@ pub struct FilterConf {
     pub info: bool, 
     pub warn: bool, 
     pub error: bool,
-    pub fatal: bool,
+    pub trace: bool,
 }
 
 impl Default for FilterConf {
@@ -198,7 +198,7 @@ impl Default for FilterConf {
             info: true,
             warn: true,
             error:true,
-            fatal: true,
+            trace: true,
         }
     }
 }

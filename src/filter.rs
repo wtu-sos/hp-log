@@ -1,5 +1,6 @@
 use crate::config::FilterConf;
 use crate::color::Color;
+use log::Level;
 
 #[derive(Copy, Clone)]
 pub enum FilterLevel {
@@ -7,7 +8,7 @@ pub enum FilterLevel {
     Info  = 2,
     Warn  = 4,
     Error = 8,
-    Fatal = 16,
+    Trace  = 16,
 } 
 
 pub struct Filters {
@@ -35,8 +36,8 @@ impl Filters {
             filter |= FilterLevel::Error as u8;
         }
 
-        if conf.fatal {
-            filter |= FilterLevel::Fatal as u8;
+        if conf.trace {
+            filter |= FilterLevel::Trace as u8;
         }
 
         //println!("filter : {}", filter);
@@ -64,7 +65,7 @@ impl FilterLevel {
             FilterLevel::Info  => "INFO",
             FilterLevel::Warn  => "WARN",
             FilterLevel::Error => "ERROR",
-            FilterLevel::Fatal => "FATAL",
+            FilterLevel::Trace => "TRACE",
         } 
     }
 
@@ -74,7 +75,7 @@ impl FilterLevel {
             FilterLevel::Info  => Color::Green,
             FilterLevel::Warn  => Color::Yellow,
             FilterLevel::Error => Color::Red,
-            FilterLevel::Fatal => Color::Red,
+            FilterLevel::Trace => Color::White,
         } 
     }
 
@@ -84,7 +85,7 @@ impl FilterLevel {
             FilterLevel::Info  => Color::Black,
             FilterLevel::Warn  => Color::Black,
             FilterLevel::Error => Color::Black,
-            FilterLevel::Fatal => Color::White,
+            FilterLevel::Trace => Color::Black,
         } 
     }
 
@@ -94,8 +95,20 @@ impl FilterLevel {
             2  => FilterLevel::Info,
             4  => FilterLevel::Warn,
             8  => FilterLevel::Error,
-            16 => FilterLevel::Fatal,
+            16 => FilterLevel::Trace,
             _ => unimplemented!(),
+        }
+    }
+}
+
+impl From<Level> for FilterLevel {
+    fn from(level: Level) -> FilterLevel {
+        match level {
+            Level::Debug   => FilterLevel::Debug,
+            Level::Info    => FilterLevel::Info,
+            Level::Warn    => FilterLevel::Warn,
+            Level::Error   => FilterLevel::Error,
+            Level::Trace   => FilterLevel::Trace,
         }
     }
 }

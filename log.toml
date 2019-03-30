@@ -4,7 +4,7 @@ debug = true
 info = true 
 warn = true 
 error = true
-fatal = true
+trace = true
 
 [file_conf]
 switch = true
@@ -12,7 +12,7 @@ debug = true
 info = true 
 warn = true 
 error = true
-fatal = true
+trace = true
 
 file_log_dir = "/tmp/log/" 
 file_temp_buf = "1048576"

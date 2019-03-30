@@ -2,6 +2,8 @@ use time;
 use crate::filter::FilterLevel;
 use std::fmt;
 
+use log::Record;
+
 pub struct LogicEvent {
     pub level: FilterLevel,
     pub content: String,
@@ -12,7 +14,7 @@ pub struct Event {
     pub tm: time::Tm,
     pub level: FilterLevel,
     pub thread_tag: String,
-    pub file: &'static str,
+    pub file: String,
     pub line: u32,
     pub msg: String,
 }
@@ -24,9 +26,21 @@ impl Event {
             tm: time::now(),
             level,
             thread_tag,
-            file,
+            file: file.to_string(),
             line,
             msg: msg.to_string(),
+        }
+    }
+
+    pub fn from_record(thread_tag: String, record: &Record) -> Self {
+        Self {
+            time_spec: time::get_time(),
+            tm: time::now(),
+            level: record.level().into(),
+            thread_tag,
+            file: record.file().unwrap_or("").to_string(),
+            line: record.line().unwrap_or(0),
+            msg: format!("{}", record.args()),
         }
     }
 
