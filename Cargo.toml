@@ -10,9 +10,15 @@ description = """
 try to implement high performance log :w
 """
 
+<<<<<<< Updated upstream
 #[lib]
 #name = "hplog"
 #crate-type = ["dylib"]
+=======
+# [lib]
+# name = "hplog"
+# crate-type = ["dylib"]
+>>>>>>> Stashed changes
 
 [dependencies]
 strfmt = "0.1.6"
