@@ -6,7 +6,7 @@ high performance multi-thread log implement in rust
 use the newest version from crate.io (recommand)
 ``` toml
 [dependencies]
-hp-log = "0.2.0"
+hp-log = "0.3.0"
 ```
 use the newest version by git
 ``` toml
@@ -16,6 +16,8 @@ hp-log = {git = "https://github.com/wtu-sos/hp-log.git"}
 ## Config File
 ``` toml
 # log level filter
+# OFF  ERROR  WARN  INFO  DEBUG  TRACE 
+global_max_level = "TRACE"
 [console_conf]
 switch = true  # Whether the output is on the console
 debug = true
@@ -39,19 +41,23 @@ file_temp_buf = "1048576"
 
 ## Generated Code Example
 ``` rust
-extern crate hp_log;
-use std::path::PathBuf;
+#![feature(rustc_private)]
 
-use hp_log::*;
+extern crate hp_log;
+#[macro_use]
+extern crate log;
 
 fn main() {
-    Logger::load_config(PathBuf::from("./"));
-    info!("main running");
-    debug!("main running");
-    warn!("main running");
-    error!("main running");
-    fatal!("main running");
-    Logger::close();
+    hp_log::init("./".to_string());
+    
+    trace!("main running ````````````````````");
+    info!("main running info");
+    debug!("main running .........................");
+    warn!("main running ****************");
+    error!("main running +++++++++++++++++++++++++");
+
+    hp_log::close();
+
 }
 ```
 
