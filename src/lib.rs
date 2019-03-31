@@ -2,10 +2,9 @@
  #![feature(rustc_private)]
 #[macro_use]
 extern crate serde_derive;
-extern crate toml;
-
-#[macro_use]
 extern crate log;
+
+extern crate toml;
 
 #[cfg(windows)]
 extern crate wincolor;
@@ -24,6 +23,8 @@ pub mod logger;
 
 use std::fmt::Arguments;
 use std::io::Write;
+use std::path::PathBuf;
+use std::str::FromStr;
 
 pub use crate::{
     logger::{ThreadLocalLogger, Logger, SendEvent},
@@ -35,30 +36,57 @@ thread_local! {
     pub static LOG_SENDER: ThreadLocalLogger = ThreadLocalLogger::new();
 }
 
-static LOGGER: ConsoleLogger = ConsoleLogger;
+pub fn init(path: String) -> Result<(), log::SetLoggerError> {
+    config::Config::create_instance(Some(PathBuf::from(path)));
 
-pub fn init() -> Result<(), log::SetLoggerError> {
-    log::set_logger(&LOGGER)
-        .map(|()| log::set_max_level(log::LevelFilter::Trace))
+    log::set_boxed_logger(CombineLogger::new())?;
+    let filter = config::Config::instance().global_max_level();
+    let level = log::LevelFilter::from_str(filter.as_str()).unwrap_or(log::LevelFilter::Trace);
+    log::set_max_level(level);
+    
+    Ok(())
 }
 
-pub struct ConsoleLogger;
+pub fn close() {
+    Logger::close();
+}
 
-impl log::Log for ConsoleLogger {
+pub struct CombineLogger {
+    file_filter: filter::Filters,
+    console_filter: filter::Filters,
+}
+
+impl CombineLogger {
+    pub fn new() -> Box<Self> {
+        let console_conf = config::Config::instance().console_conf();
+        let file_conf = config::Config::instance().file_conf();
+        let logger = CombineLogger {
+            file_filter: filter::Filters::new(&file_conf),
+            console_filter: filter::Filters::new(&console_conf),
+        };
+
+        Box::new(logger)
+    }
+}
+
+impl log::Log for CombineLogger {
     fn enabled(&self, metadata: &log::Metadata) -> bool {
-        true
-        //metadata.level() <= Level::Info
+        let filter = metadata.level().into();
+        if self.file_filter.is_pass(filter) || self.console_filter.is_pass(filter) {
+            return true
+        }
+
+        false
     }
 
     fn log(&self, record: &log::Record) {
         if self.enabled(record.metadata()) {
-            println!("{} - {}", record.level(), record.args());
             send_record(record);
         }
     }
 
     fn flush(&self) {
-        std::io::stdout().flush();
+        let _ = std::io::stdout().flush();
     }
 }
 
@@ -77,59 +105,18 @@ pub fn send_record(record: &log::Record) {
         s.get_sender().send_event(ev);
     });
 }
-//#[allow(unused)]
-//#[macro_export]
-//macro_rules! log {
-//    ($lv: expr, $arg: expr) => {
-//        $crate::send_event($lv, file!(), line!(), $arg);
-//    }
-//}
-//
-//#[macro_export]
-//macro_rules! debug {
-//    ($($arg:tt)*) => {
-//        log!($crate::filter::FilterLevel::Debug, format_args!($($arg)*));
-//    }
-//}
-//
-//#[macro_export]
-//macro_rules! info {
-//    ($($arg:tt)*) => {
-//        log!($crate::filter::FilterLevel::Info, format_args!($($arg)*));
-//    }
-//}
-//
-//#[macro_export]
-//macro_rules! error {
-//    ($($arg:tt)*) => {
-//        log!($crate::filter::FilterLevel::Error, format_args!($($arg)*));
-//    }
-//}
-//
-//#[macro_export]
-//macro_rules! trace {
-//    ($($arg:tt)*) => {
-//        log!($crate::filter::FilterLevel::Trace, format_args!($($arg)*));
-//    }
-//}
-//
-//#[macro_export]
-//macro_rules! warn {
-//    ($($arg:tt)*) => {
-//        log!($crate::filter::FilterLevel::Warn, format_args!($($arg)*));
-//    }
-//}
-//
+
 mod test {
 
     #[test]
     fn multi_test() {
-        //use std::time::{Duration, Instant};
+        use std::time::{Duration};
         use std::thread;
         use std::path::PathBuf;
         //use std::io;
-        use crate::{Logger};
+        use crate::{Logger, init};
 
+        init();
         Logger::load_config(PathBuf::from("./"));
 
         let mut ths = Vec::new();
@@ -137,12 +124,14 @@ mod test {
         let max_format_count = 50_0000;
         let t1 = max_format_count.clone(); 
 
+        println!("mutlt test");
         //let m_now = Instant::now();
         for _i in 0..8 {
             ths.push(thread::spawn(
                     move || {
                         //let d_now = Instant::now();
                         for idx in 0..t1 {
+                            warn!("199999999999999-=dfghjkl;'kald;ngtohbjgbtesting {}...99=====.{}....mmmmmmm{}m .... {}", 1,2,3, idx);
                             debug!("1234567890-=dfghjkl;'kald;ngtohbjgbtesting {}...99=====.{}....mmmmmmm{}m .... {}", 1,2,3, idx);
                             error!("1234567890-=dfghjkl;'kald;ngtohbjgbtesting {}...99=====.{}....mmmmmmm{}m ********* {}", 1,2,3, idx);
                             info!("1234567890-=dfghjkl;'ka0000000000;ngtohbjgbtesting {}...99=====.{}....mmmmmmm{}m ********* {}", 1,2,3, idx);
@@ -150,5 +139,6 @@ mod test {
                         }
                     }));
         }
+        thread::sleep(Duration::from_secs(2));
     }
 }

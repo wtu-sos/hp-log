@@ -4,6 +4,7 @@ use log::Level;
 
 #[derive(Copy, Clone)]
 pub enum FilterLevel {
+    Off   = 0,
     Debug = 1,
     Info  = 2,
     Warn  = 4,
@@ -40,8 +41,6 @@ impl Filters {
             filter |= FilterLevel::Trace as u8;
         }
 
-        //println!("filter : {}", filter);
-
         Filters {
             filter,
         }
@@ -55,6 +54,11 @@ impl Filters {
     pub fn is_pass(&self, level: FilterLevel) -> bool {
         return 0 != (self.filter & level as u8);
     }
+
+    #[allow(dead_code)]
+    pub fn is_enable(&self, level: log::LevelFilter) -> bool {
+        return 0 != (self.filter & level as u8);
+    }
 }
 
 #[allow(dead_code)]
@@ -66,6 +70,7 @@ impl FilterLevel {
             FilterLevel::Warn  => "WARN",
             FilterLevel::Error => "ERROR",
             FilterLevel::Trace => "TRACE",
+            FilterLevel::Off => "TRACE",
         } 
     }
 
@@ -76,6 +81,7 @@ impl FilterLevel {
             FilterLevel::Warn  => Color::Yellow,
             FilterLevel::Error => Color::Red,
             FilterLevel::Trace => Color::White,
+            FilterLevel::Off => Color::White,
         } 
     }
 
@@ -86,11 +92,13 @@ impl FilterLevel {
             FilterLevel::Warn  => Color::Black,
             FilterLevel::Error => Color::Black,
             FilterLevel::Trace => Color::Black,
+            FilterLevel::Off => Color::Black,
         } 
     }
 
     pub fn from(digit: u8) -> FilterLevel {
         match digit {
+            0  => FilterLevel::Off,
             1  => FilterLevel::Debug,
             2  => FilterLevel::Info,
             4  => FilterLevel::Warn,
@@ -101,6 +109,18 @@ impl FilterLevel {
     }
 }
 
+impl From<log::LevelFilter> for FilterLevel {
+    fn from(level: log::LevelFilter) -> FilterLevel {
+        match level {
+            log::LevelFilter::Debug   => FilterLevel::Debug,
+            log::LevelFilter::Info    => FilterLevel::Info,
+            log::LevelFilter::Warn    => FilterLevel::Warn,
+            log::LevelFilter::Error   => FilterLevel::Error,
+            log::LevelFilter::Trace   => FilterLevel::Trace,
+            _ => FilterLevel::Off,
+        }
+    }
+}
 impl From<Level> for FilterLevel {
     fn from(level: Level) -> FilterLevel {
         match level {

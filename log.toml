@@ -1,17 +1,19 @@
+# OFF  ERROR  WARN  INFO  DEBUG  TRACE 
+global_max_level = "TRACE"
 [console_conf]
 switch = true
-debug = true
-info = true 
-warn = true 
 error = true
+warn = true 
+info = true 
+debug = true
 trace = true
 
 [file_conf]
 switch = true
-debug = true
-info = true 
-warn = true 
 error = true
+warn = true 
+info = true 
+debug = true
 trace = true
 
 file_log_dir = "/tmp/log/" 

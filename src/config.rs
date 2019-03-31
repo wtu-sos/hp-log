@@ -204,7 +204,8 @@ impl Default for FilterConf {
 }
 
 create_config!(
-       // Comments. macros, and strings
+        // Comments. macros, and strings
+        global_max_level: String, String::from("TRACE"), false, "global max log level ouput control";
         file_log_dir: String, String::from("/tmp/log/"), false, "file generate path";
         file_temp_buf: usize, 1024*1024, false, "log file write max buffer size once";
         console_conf: FilterConf, FilterConf::default(), false, "console filter data";
@@ -214,8 +215,8 @@ create_config!(
 
 /// Load a config by checking the client-supplied options and if appropriate, the
 /// file system (including searching the file system for overrides).
-pub fn load_config<T: Into<Option<PathBuf>>>( file_path: T) -> Result<Config, Error> {
-    if let Some(file_path) = file_path.into() {
+pub fn load_config( file_path: Option<PathBuf>) -> Result<Config, Error> {
+    if let Some(file_path) = file_path {
         const CONFIG_FILE_NAMES: [&str; 2] = ["Log.toml", "log.toml"];
         for config_file_name in &CONFIG_FILE_NAMES {
             let mut file_path_cloned = file_path.clone();

@@ -3,7 +3,6 @@ use crate::event::Event;
 use crate::config::Config;
 use crate::appender::{FileAppender, ConsoleAppender};
 
-use std::path::PathBuf;
 use std::thread;
 use std::sync::{mpsc, Mutex};
 
@@ -24,10 +23,6 @@ pub struct Logger {
 }
 
 impl Logger {
-    pub fn load_config<T: Into<Option<PathBuf>>>( file_path: T) {
-        Config::create_instance(file_path.into());
-    }
-
     pub fn init() -> Self {
         let mut w = Writer::new();
         let poster = w.get_poster();
