@@ -1,4 +1,4 @@
-#![feature(rustc_private)]
+//#![feature(rustc_private)]
 extern crate hp_log;
 #[macro_use]
 extern crate log;
