@@ -9,7 +9,7 @@ pub struct ConsoleAppender {
 }
 
 impl ConsoleAppender {
-    pub fn new(conf: &FilterConf) -> Self {
+    pub fn new(conf: FilterConf) -> Self {
         Self {
             filter: Filters::new(conf),
         }
