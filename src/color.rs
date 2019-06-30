@@ -69,7 +69,7 @@ pub enum Color {
 
 #[allow(dead_code)]
 impl Color {
-    fn color_byte(&self) -> char {
+    fn color_byte(self) -> char {
         match self {
             Color::Black => '0',
             Color::Red => '1',

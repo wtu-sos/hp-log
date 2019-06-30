@@ -19,7 +19,7 @@ pub struct Filters {
 
 #[allow(dead_code)]
 impl Filters {
-    pub fn new(conf: &FilterConf) -> Self {
+    pub fn new(conf: FilterConf) -> Self {
         //println!("conf : {:?}", conf);
         let mut filter = 0u8;
         if conf.debug {
@@ -52,18 +52,18 @@ impl Filters {
 
     #[allow(dead_code)]
     pub fn is_pass(&self, level: FilterLevel) -> bool {
-        return 0 != (self.filter & level as u8);
+        0 != (self.filter & level as u8)
     }
 
     #[allow(dead_code)]
     pub fn is_enable(&self, level: log::LevelFilter) -> bool {
-        return 0 != (self.filter & level as u8);
+        0 != (self.filter & level as u8)
     }
 }
 
 #[allow(dead_code)]
 impl FilterLevel {
-    pub fn to_str(&self) -> &'static str {
+    pub fn to_str(self) -> &'static str {
         match self {
             FilterLevel::Debug => "DEBUG",
             FilterLevel::Info  => "INFO",
@@ -74,7 +74,7 @@ impl FilterLevel {
         } 
     }
 
-    pub fn fg_color(&self) -> Color {
+    pub fn fg_color(self) -> Color {
         match self {
             FilterLevel::Debug => Color::Cyan,
             FilterLevel::Info  => Color::Green,
@@ -85,7 +85,7 @@ impl FilterLevel {
         } 
     }
 
-    pub fn bg_color(&self) -> Color {
+    pub fn bg_color(self) -> Color {
         match self {
             FilterLevel::Debug => Color::Black,
             FilterLevel::Info  => Color::Black,

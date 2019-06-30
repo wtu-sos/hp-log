@@ -29,12 +29,12 @@ impl Logger {
 
         let console_conf = Config::instance().console_conf();
         if console_conf.switch {
-            w.add_appender(Box::new(ConsoleAppender::new(&console_conf)));
+            w.add_appender(Box::new(ConsoleAppender::new(console_conf)));
         }
 
         let file_conf = Config::instance().file_conf();
         if file_conf.switch {
-            w.add_appender(Box::new(FileAppender::new(&file_conf, Config::instance().file_temp_buf(), Config::instance().file_log_dir())));
+            w.add_appender(Box::new(FileAppender::new(file_conf, Config::instance().file_temp_buf(), Config::instance().file_log_dir())));
         }
 
         // init writer thread
@@ -147,5 +147,11 @@ impl ThreadLocalLogger {
     pub fn get_sender(&self) -> &mpsc::Sender<EventType> {
         &self.sender
     }
+
 }
 
+impl Default for ThreadLocalLogger {
+    fn default() -> Self {
+        Self::new()
+    }
+}

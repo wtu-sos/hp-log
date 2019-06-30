@@ -20,7 +20,7 @@ pub struct FileAppender {
 }
 
 impl FileAppender {
-    pub fn new(conf: &FilterConf, buf_size: usize, base_dir: String) -> Self {
+    pub fn new(conf: FilterConf, buf_size: usize, base_dir: String) -> Self {
         // todo : check current index
         let _ = DirBuilder::new().recursive(true).create(base_dir.clone());
         let log_name = FileAppender::get_file_name(&base_dir, 0);
@@ -29,7 +29,7 @@ impl FileAppender {
                                     .write(true)
                                     .append(true)
                                     .open(log_name.clone())
-                                    .expect(format!("open or create file error: {}", log_name).as_str());
+                                    .unwrap_or_else(|_| panic!("open or create file error: {}", log_name));
 
         Self {
             filter: Filters::new(conf),
@@ -43,8 +43,8 @@ impl FileAppender {
         }
     }
 
-    fn get_file_name(dir_name: &String, idx: u32) -> String {
-        let exec_path = std::env::current_exe().unwrap_or(PathBuf::from("/tmp/unknow_file"));
+    fn get_file_name(dir_name: &str, idx: u32) -> String {
+        let exec_path = std::env::current_exe().unwrap_or_else(|_| PathBuf::from("/tmp/unknow_file"));
         let exe = exec_path.as_path().file_name().expect("get exe path failed");
         //println!("exec_path: {:?}, exe:{:?}, dir_name:{:?}", exec_path, exe, dir_name);
         let p = Path::new(dir_name).join(exe.to_str().unwrap());
@@ -68,7 +68,7 @@ impl FileAppender {
                                                 .write(true)
                                                 .append(true)
                                                 .open(self.file_name.clone())
-                                                .expect(format!("open or create file error: {}", self.file_name).as_str());
+                                                .unwrap_or_else(|_| panic!("open or create file error: {}", self.file_name));
                     self.file = Some(file);
                 }
             },
@@ -91,7 +91,8 @@ impl FileAppender {
 
                 //println!("write log : {:?}, result : {:?}", self.buf, r);
                 self.buf.clear();
-                return r.map_err(|e| e.to_string());
+
+                r.map_err(|e| e.to_string())
             },
             None => {
                 panic!("file is not exist!");
@@ -107,18 +108,14 @@ impl Appender for FileAppender {
             return;
         }
 
-        if self.buf.len() + log.content.len() > self.max_buf {
-            if self.write_file().is_err() {
-                panic!("there is something wrong while write log file");
-            }
+        if self.buf.len() + log.content.len() > self.max_buf && self.write_file().is_err() {
+            panic!("there is something wrong while write log file");
         }
 
         self.buf.push_str(log.content.as_str());
 
-        if flush {
-            if self.write_file().is_err() {
-                panic!("there is something wrong while write log file");
-            }
+        if flush &&  self.write_file().is_err() {
+            panic!("there is something wrong while write log file");
         }
     }
 }

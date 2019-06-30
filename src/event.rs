@@ -49,7 +49,7 @@ impl Event {
         format!("{}-{}-[{}]-{}:{}  {}\n", t, self.thread_tag, self.level.to_str(), self.file, self.line, self.msg)
     }
 
-    pub fn to_logic(self) -> LogicEvent {
+    pub fn to_logic(&self) -> LogicEvent {
         LogicEvent {
             content: self.format_by_default(),
             level: self.level,

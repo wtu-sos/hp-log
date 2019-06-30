@@ -61,8 +61,8 @@ impl CombineLogger {
         let console_conf = config::Config::instance().console_conf();
         let file_conf = config::Config::instance().file_conf();
         let logger = CombineLogger {
-            file_filter: filter::Filters::new(&file_conf),
-            console_filter: filter::Filters::new(&console_conf),
+            file_filter: filter::Filters::new(file_conf),
+            console_filter: filter::Filters::new(console_conf),
         };
 
         Box::new(logger)
