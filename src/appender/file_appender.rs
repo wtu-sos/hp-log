@@ -118,5 +118,8 @@ impl Appender for FileAppender {
             panic!("there is something wrong while write log file");
         }
     }
-}
 
+    fn flush(&mut self) {
+        self.write_file();
+    }
+}

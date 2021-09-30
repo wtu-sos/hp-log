@@ -25,4 +25,7 @@ impl Appender for ConsoleAppender {
         let content = RichContent::new(log.content.as_str(), log.level);
         print!("{}", content);
     }
+    fn flush(&mut self) {
+        return;
+    }
 }

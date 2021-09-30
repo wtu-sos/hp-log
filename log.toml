@@ -1,7 +1,7 @@
 # OFF  ERROR  WARN  INFO  DEBUG  TRACE 
 global_max_level = "TRACE"
 [console_conf]
-switch = true
+switch = false
 error = true
 warn = true 
 info = true 

@@ -28,6 +28,7 @@ impl Logger {
         let poster = w.get_poster();
 
         let console_conf = Config::instance().console_conf();
+        println!("{:?}", console_conf);
         if console_conf.switch {
             w.add_appender(Box::new(ConsoleAppender::new(console_conf)));
         }
@@ -45,6 +46,7 @@ impl Logger {
 
                 if w.is_terminate() {
                     //println!("writer thread exit!!");
+                    w.flush_all();
                     break;
                 }
                 // release cpu every frame 

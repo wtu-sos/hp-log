@@ -8,7 +8,7 @@ use crate::event::LogicEvent;
 pub struct Writer {
     inner: Arc<Inner>,
     event_cache: LinkedList<LogicEvent>,
-    appenders: Vec<Box<Appender>>,
+    appenders: Vec<Box<dyn Appender>>,
 }
 
 pub struct Inner {
@@ -79,7 +79,7 @@ impl Writer {
     }
 
     #[allow(dead_code)]
-    pub fn add_appender(&mut self, appender: Box<Appender>) {
+    pub fn add_appender(&mut self, appender: Box<dyn Appender>) {
         self.appenders.push(appender);
     }
 
@@ -111,6 +111,12 @@ impl Writer {
                     break;
                 }
             }
+        }
+    }
+    pub fn flush_all(&mut self)
+    {
+        for app in self.appenders.iter_mut() {
+            app.flush();
         }
     }
 

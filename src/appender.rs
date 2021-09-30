@@ -7,5 +7,6 @@ use crate::event::LogicEvent;
 
 pub trait Appender: Send {
     fn append(&mut self, log: &LogicEvent, flush: bool);
+    fn flush(&mut self);
 }
 
